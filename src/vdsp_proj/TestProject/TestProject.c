@@ -11,6 +11,12 @@ const char __argv_string[] = "-abc -xyz";
 #define BUF_LEN 1000
 short input[BUF_LEN];
 short output[BUF_LEN]; 
+short ref[BUF_LEN]; 
+
+
+#include <algorithm\pid.h>
+
+pid_state_t state = PID_INIT(30000, 0, 0);
 
 //
 // main routine
@@ -18,14 +24,23 @@ short output[BUF_LEN];
 int main( int argc, char *argv[] )
 {
 	int n;
-	
+
 	// preparation
 	for(n=0; n<BUF_LEN; n++)
 	{
-		input[n] = 1000;
+		ref[n] = 1000;
 		output[n] = 0;
+		
 	}
 	
+    // operation
+    for(n=0; n<BUF_LEN; n++)
+    {
+        if(n != 0)
+            input[n]= output[n-1];
+            
+        pid(output+n, input+n, ref+n, 1, &state);   
+    }	
 	
 	
 	/* Begin adding your custom code here */
