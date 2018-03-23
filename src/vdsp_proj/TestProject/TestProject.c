@@ -15,8 +15,9 @@ short ref[BUF_LEN];
 
 
 #include <algorithm\pid.h>
+#include <processor\bf592.h>
 
-pid_state_t state = PID_INIT(30000, 0, 0);
+pid_state_t state = PID_INIT(0, 32767, 0);
 
 //
 // main routine
@@ -37,7 +38,7 @@ int main( int argc, char *argv[] )
     for(n=0; n<BUF_LEN; n++)
     {
         if(n != 0)
-            input[n]= output[n-1];
+            input[n]= 0; //output[n-1];
             
         pid(output+n, input+n, ref+n, 1, &state);   
     }	

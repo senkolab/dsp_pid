@@ -261,7 +261,7 @@ typedef struct _dsp_id_t {
 #define TBUFSTAT_ADDR           (0xFFE06004)  /* “TBUFSTAT Register” on page 21-17 */
 #define TBUF_ADDR               (0xFFE06100)  /* “TBUF Register” on page 21-18 */
 
-typedef _trace_t {
+typedef struct _trace_t {
   u8      start[ TBUFCTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     tbufctl;            // 0xFFE06000
   u32     tbufstat;           // 0xFFE06004
@@ -311,13 +311,13 @@ typedef struct _watchpoint_t {
   u32     wpiacnt5;         // 0xFFE07094
   u8      pad02[ 0x100 - 0x094 + 4 ];
   u32     wpdactl;          // 0xFFE07100
-  u8      pad02[ 0x140 - 0x100 + 4 ];
+  u8      pad03[ 0x140 - 0x100 + 4 ];
   u32     wpda0;            // 0xFFE07140
   u32     wpda1;            // 0xFFE07144
-  u8      pad03[ 0x180 - 0x144 + 4 ];
+  u8      pad04[ 0x180 - 0x144 + 4 ];
   u32     wpdacnt0;         // 0xFFE07180
   u32     wpdacnt1;         // 0xFFE07184
-  u8      pad03[ 0x200 - 0x184 + 4 ];
+  u8      pad05[ 0x200 - 0x184 + 4 ];
   u32     wpstat;           // 0xFFE07200
 } watchpoint_t;
 

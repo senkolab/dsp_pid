@@ -63,7 +63,13 @@
 	<folders>
 		<folder name="Header Files" ext=".h,.hpp,.hxx">
 			<files>
+				<file name="..\..\blackfin\include\processor\bf592.h">
+				</file>
+				<file name="..\..\blackfin\include\processor\blackfin_core.h">
+				</file>
 				<file name="..\..\blackfin\include\algorithm\pid.h">
+				</file>
+				<file name="..\..\blackfin\include\types.h">
 				</file>
 			</files>
 		</folder>
