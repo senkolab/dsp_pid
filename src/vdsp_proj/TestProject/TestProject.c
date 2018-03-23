@@ -26,6 +26,10 @@ int main( int argc, char *argv[] )
 {
 	int n;
 
+	volatile u16* vr_ctl = (volatile u16*) VR_CTL_ADDR;
+	
+	*vr_ctl = (1 << 14) | (1 << 13);
+	
 	// preparation
 	for(n=0; n<BUF_LEN; n++)
 	{
@@ -44,6 +48,6 @@ int main( int argc, char *argv[] )
     }	
 	
 	
-	/* Begin adding your custom code here */
+	asm("EMUEXCPT;");
 	return 0;
 }

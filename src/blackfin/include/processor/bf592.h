@@ -339,7 +339,31 @@
 #define PLL_STAT_ADDR           (0xFFC0000C)  /* “PLL_STAT Register” on page 6-22 */
 #define PLL_LOCKCNT_ADDR        (0xFFC00010)  /* “PLL_LOCKCNT Register” on page 6-22 */
 
+typedef struct _vr_ctl_t {
+  u16   polarity      :     1;
+  u16   extclk_oe     :     1;
+  u16   extclk_sel    :     1;
+  u16   hibernateb    :     1;
+  u16   wake_en3      :     1;
+  u16   wake_en2      :     1;
+  u16   wake_en1      :     1;
+  u16   wake_en0      :     1;
+  u16                 :     8;
+} vr_ctl_t;
 
+
+typedef struct _power_t {
+  u8          start[ PLL_CTL_ADDR - BLACKFIN_MMR_BASE ];
+  u16         pll_ctl;
+  u8          pad00[2];
+  u16         pll_div;
+  u8          pad01[2];
+  vr_ctl_t    vr_ctl;
+  u8          pad02[2];
+  u16         pll_stat;
+  u8          pad03[2];
+  u16         pll_lockcnt;
+} _power_t;
 // 
 // PPI Registers
 // 
