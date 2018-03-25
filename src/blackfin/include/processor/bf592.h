@@ -734,23 +734,78 @@ typedef struct _bf592_sport_t {
 #define UART_SCR_ADDR            (0xFFC0041C)  /* “UART Scratch (UART_SCR) Register” on page 11-32 */
 #define UART_GCTL_ADDR           (0xFFC00424)  /* “UART Global Control (UART_GCTL) Register” on page 11-32 */
 
+typedef struct _bf592_uart_lcr_t {
+  u16         : 8;
+  u16 dlab    : 1;
+  u16 sb      : 1;
+  u16 stp     : 1;
+  u16 eps     : 1;
+  u16 pen     : 1;
+  u16 stb     : 1;
+  u16 wls     : 2;
+} bf_592_uart_lcr_t;
+#define UART_LCR_WLS_5BIT   0
+#define UART_LCR_WLS_6BIT   1
+#define UART_LCR_WLS_7BIT   2
+#define UART_LCR_WLS_8BIT   3
+
+typedef struct _bf592_uart_mcr_t {
+  u16             : 11;
+  u16 loop_ena    : 1;
+  u16             : 4;
+} bf592_uart_mcr_t;
+
+typedef struct _bf592_uart_lsr_t {
+  u16           : 9;
+  u16 temp      : 1;
+  u16 thre      : 1;
+  u16 bi        : 1;
+  u16 fe        : 1;
+  u16 pe        : 1;
+  u16 oe        : 1;
+  u16 dr        : 1;
+} bf592_uart_lsr_t;
+
+typedef struct _bf592_uart_ier_t {
+  u16           : 13;
+  u16 elsi      : 1;
+  u16 etbei     : 1;
+  u16 erbfi     : 1;
+} bf592_uart_ier_t;
+
+typedef struct _bf592_uart_iir_t {
+  u16           : 13;
+  u16 status    : 2;
+  u16 nint      : 1;
+} bf592_uart_iir_t;
+
+typedef struct _bf592_uart_gctl_t {
+  u16           : 10;
+  u16 ffe       : 1;
+  u16 fpe       : 1;
+  u16 rpolc     : 1;
+  u16 tpolc     : 1;
+  u16 iren      : 1;
+  u16 ucen      : 1;
+} bf592_uart_gctl_t;
+
 typedef struct _bf592_uart_t {
-  u8          start [ UART_THR_ADDR - BLACKFIN_MMR_BASE ];
-  u16         uart_thr_rbr_dll;    // 0xFFC00400
-  u8          pad00[ 0x004 - 0x00 - 2 ];
-  u16         uart_dlh_ier;        // 0xFFC00404
-  u8          pad01[ 0x008 - 0x04 - 2 ];
-  u16         uart_iir;            // 0xFFC00408
-  u8          pad02[ 0x00c - 0x08 - 2 ];
-  u16         uart_lcr;            // 0xFFC0040C
-  u8          pad03[ 0x010 - 0x0c - 2 ];
-  u16         uart_mcr;            // 0xFFC00410
-  u8          pad04[ 0x014 - 0x10 - 2 ];
-  u16         uart_lsr;            // 0xFFC00414
-  u8          pad05[ 0x01c - 0x14 - 2 ];
-  u16         uart_scr;            // 0xFFC0041C
-  u8          pad06[ 0x024 - 0x1c - 2 ];
-  u16         uart_gctl;           // 0xFFC00424
+  u8                  start [ UART_THR_ADDR - BLACKFIN_MMR_BASE ];
+  u16                 uart_thr_rbr_dll;    // 0xFFC00400
+  u8                  pad00[ 0x004 - 0x00 - 2 ];
+  u16                 uart_dlh_ier;        // 0xFFC00404
+  u8                  pad01[ 0x008 - 0x04 - 2 ];
+  bf592_uart_iir_t    uart_iir;            // 0xFFC00408
+  u8                  pad02[ 0x00c - 0x08 - 2 ];
+  bf592_uart_lcr_t    uart_lcr;            // 0xFFC0040C
+  u8                  pad03[ 0x010 - 0x0c - 2 ];
+  bf592_uart_mcr_t    uart_mcr;            // 0xFFC00410
+  u8                  pad04[ 0x014 - 0x10 - 2 ];
+  bf592_uart_lsr_t    uart_lsr;            // 0xFFC00414
+  u8                  pad05[ 0x01c - 0x14 - 2 ];
+  u16                 uart_scr;            // 0xFFC0041C
+  u8                  pad06[ 0x024 - 0x1c - 2 ];
+  bf592_uart_gctl_t   uart_gctl;           // 0xFFC00424
 } bf592_uart_t;
 
 // 
@@ -830,5 +885,9 @@ typedef union _bf592_t {
 } bf592_t;
 
 
+//
+// master base MMR register prototype
+//
+extern const bf592_t* blackfin;
 #endif /* _BF592_H_ */
 
