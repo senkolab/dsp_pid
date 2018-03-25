@@ -1,0 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+// 
+// power.c - set blackfin power and clocking
+//
+// Written by Rich Rademacher  UWaterloo/IQC
+// March 2018
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include <types.h>
+#include <processor\power.h>
+#include <processor\bf592.h>
+
+//
+// init_power() - set up power registers
+//
+void init_power()
+{
+
+}
