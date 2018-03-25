@@ -60,7 +60,7 @@
 #define DTEST_DATA0_ADDR             (0xFFE00400)  /* “DTEST_DATA0 Register” on page 6-48 */
 #define DTEST_DATA1_ADDR             (0xFFE00404)  /* “DTEST_DATA1 Register” on page 6-47 */
 
-typedef struct _L1_dmem_ctrl_t {
+typedef struct _bf_L1_dmem_ctrl_t { {
   u8  start[ DMEM_CONTROL_ADDR - BLACKFIN_MMR_BASE ];
   u32 dmem_control;            // 0xFFE00004
   u32 dcplb_status;            // 0xFFE00008
@@ -104,7 +104,7 @@ typedef struct _L1_dmem_ctrl_t {
   u8  pad03[0x400-0x300 + 4];
   u32 dtest_data0;             // 0xFFE00400
   u32 dtest_data1;             // 0xFFE00404
-} L1_dmem_ctrl_t;
+} bf_L1_dmem_ctrl_t;
 
 
 // 
@@ -149,7 +149,7 @@ typedef struct _L1_dmem_ctrl_t {
 #define ITEST_DATA0_ADDR        (0xFFE01400)  /* “ITEST_DATA0 Register” on page 6-27 */
 #define ITEST_DATA1_ADDR        (0xFFE01404)  /* “ITEST_DATA1 Register” on page 6-26 */
 
-typedef struct _L1_imem_ctrl_t {
+typedef struct _bf_L1_imem_ctrl_t { {
   u8  start[ IMEM_CONTROL_ADDR - BLACKFIN_MMR_BASE ];
   u32 imem_control;       // 0xFFE01004
   u32 icplb_status;       // 0xFFE01008
@@ -193,7 +193,7 @@ typedef struct _L1_imem_ctrl_t {
   u8  pad03[0x400-0x300 + 4];
   u32 itest_data0;        // 0xFFE01400
   u32 itest_data1;        // 0xFFE01404
-} L1_imem_ctrl_t;
+} bf_L1_imem_ctrl_t;
 
 
 // 
@@ -220,7 +220,7 @@ typedef struct _L1_imem_ctrl_t {
 #define ILAT_ADDR                (0xFFE0210C)  /* “ILAT Register” on page 4-40 */
 #define IPRIO_ADDR               (0xFFE02110)  /* “IPRIO Register and Write Buffer Depth” on page 6-40 */
 
-typedef struct _evt_t {
+typedef struct _bf_evt_t { {
   u8      start[ EVT0_ADDR - BLACKFIN_MMR_BASE ];
   void*   evt0;                // 0xFFE02000
   void*   evt1;                // 0xFFE02004
@@ -243,16 +243,16 @@ typedef struct _evt_t {
   void*   ipend;               // 0xFFE02108
   void*   ilat;                // 0xFFE0210C
   void*   iprio;               // 0xFFE02110
-} evt_t;
+} bf_evt_t;
 
 // 
 // Debug, MP, and Emulation Unit Registers
 //
 #define DSPID_ADDR              (0xFFE05000)  /* “DSPID Register” on page 21-32 */
-typedef struct _dsp_id_t {
+typedef struct _bf_dsp_id_t { {
   u8  start[ DSPID_ADDR - BLACKFIN_MMR_BASE ];
   u32 dspid;              // 0xFFE05000
-} dsp_id_t;
+} bf_dsp_id_t;
 
 // 
 // Trace Unit Registers
@@ -261,13 +261,13 @@ typedef struct _dsp_id_t {
 #define TBUFSTAT_ADDR           (0xFFE06004)  /* “TBUFSTAT Register” on page 21-17 */
 #define TBUF_ADDR               (0xFFE06100)  /* “TBUF Register” on page 21-18 */
 
-typedef struct _trace_t {
+typedef struct _bf_trace_t { {
   u8      start[ TBUFCTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     tbufctl;            // 0xFFE06000
   u32     tbufstat;           // 0xFFE06004
   u8      pad00[0x100 - 0x004 + 4];
   u32     tbuf;               // 0xFFE06100
-} trace_t;
+} bf_trace_t;
 
 // 
 // Watchpoint and Patch Registers
@@ -292,7 +292,7 @@ typedef struct _trace_t {
 #define WPDACNT1_ADDR         (0xFFE07184)  /* “WPDACNTx Registers” on page 21-12 */
 #define WPSTAT_ADDR           (0xFFE07200)  /* “WPSTAT Register” on page 21-14 */
 
-typedef struct _watchpoint_t {
+typedef struct _bf_watchpoint_t { {
   u8      start[ TBUFCTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     wpiactl;          // 0xFFE07000
   u8      pad00[ 0x040 - 0x000 + 4 ];
@@ -319,7 +319,7 @@ typedef struct _watchpoint_t {
   u32     wpdacnt1;         // 0xFFE07184
   u8      pad05[ 0x200 - 0x184 + 4 ];
   u32     wpstat;           // 0xFFE07200
-} watchpoint_t;
+} bf_watchpoint_t;
 
 
 
@@ -330,12 +330,25 @@ typedef struct _watchpoint_t {
 #define PFCNTR0_ADDR          (0xFFE08100)  /* “PFCNTRx Registers” on page 21-21 */
 #define PFCNTR1_ADDR          (0xFFE08104)  /* “PFCNTRx Registers” on page 21-21 */
 
-typedef struct _perfmon_t {
+typedef struct _bf_perfmon_t { {
   u8      start[ PFCTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     pfctl;            // 0xffe08000
   u32     pfcntr0;          // 0xffe08100
   u32     pfcntr1;          // 0xffe08104
-} perfmon_t;
+} bf_perfmon_t;
 
+
+//
+// master core mmr
+//
+typedef union _blackfin_core_t {
+  bf_L1_dmem_ctrl_t     L1_dmem_ctrl;
+  bf_L1_imem_ctrl_t     L1_imem_ctrl;
+  bf_evt_t              evt;
+  bf_dsp_id_t           dsp_id;
+  bf_trace_t            trace;
+  bf_watchpoint_t       watchpoint;
+  bf_perfmon_t          perfmon;
+} blackfin_core_t;
 
 #endif /* _BLACKFIN_CORE_H_ */
