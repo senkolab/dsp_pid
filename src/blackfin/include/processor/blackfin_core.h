@@ -60,12 +60,12 @@
 #define DTEST_DATA0_ADDR             (0xFFE00400)  /* “DTEST_DATA0 Register” on page 6-48 */
 #define DTEST_DATA1_ADDR             (0xFFE00404)  /* “DTEST_DATA1 Register” on page 6-47 */
 
-typedef struct _bf_L1_dmem_ctrl_t { {
+typedef struct _bf_L1_dmem_ctrl_t { 
   u8  start[ DMEM_CONTROL_ADDR - BLACKFIN_MMR_BASE ];
   u32 dmem_control;            // 0xFFE00004
   u32 dcplb_status;            // 0xFFE00008
   u32 dcplb_fault_addr;        // 0xFFE0000C
-  u8  pad00[0x100-0x0C + 4];
+  u8  pad00[0x100-0x0C - 4];
   u32 dcplb_addr0;             // 0xFFE00100
   u32 dcplb_addr1;             // 0xFFE00104
   u32 dcplb_addr2;             // 0xFFE00108
@@ -82,7 +82,7 @@ typedef struct _bf_L1_dmem_ctrl_t { {
   u32 dcplb_addr13;            // 0xFFE00134
   u32 dcplb_addr14;            // 0xFFE00138
   u32 dcplb_addr15;            // 0xFFE0013C
-  u8  pad01[0x200-0x140 + 4];
+  u8  pad01[0x200-0x13C - 4];
   u32 dcplb_data0;             // 0xFFE00200
   u32 dcplb_data1;             // 0xFFE00204
   u32 dcplb_data2;             // 0xFFE00208
@@ -99,9 +99,9 @@ typedef struct _bf_L1_dmem_ctrl_t { {
   u32 dcplb_data13;            // 0xFFE00234
   u32 dcplb_data14;            // 0xFFE00238
   u32 dcplb_data15;            // 0xFFE0023C
-  u8  pad02[0x300-0x240 + 4];
+  u8  pad02[0x300-0x23C - 4];
   u32 dtest_command;           // 0xFFE00300
-  u8  pad03[0x400-0x300 + 4];
+  u8  pad03[0x400-0x300 - 4];
   u32 dtest_data0;             // 0xFFE00400
   u32 dtest_data1;             // 0xFFE00404
 } bf_L1_dmem_ctrl_t;
@@ -149,12 +149,12 @@ typedef struct _bf_L1_dmem_ctrl_t { {
 #define ITEST_DATA0_ADDR        (0xFFE01400)  /* “ITEST_DATA0 Register” on page 6-27 */
 #define ITEST_DATA1_ADDR        (0xFFE01404)  /* “ITEST_DATA1 Register” on page 6-26 */
 
-typedef struct _bf_L1_imem_ctrl_t { {
+typedef struct _bf_L1_imem_ctrl_t { 
   u8  start[ IMEM_CONTROL_ADDR - BLACKFIN_MMR_BASE ];
   u32 imem_control;       // 0xFFE01004
   u32 icplb_status;       // 0xFFE01008
   u32 icplb_fault_addr;   // 0xFFE0100C
-  u8  pad00[0x100-0x0C + 4];
+  u8  pad00[0x100-0x0C - 4];
   u32 icplb_addr0;        // 0xFFE01100
   u32 icplb_addr1;        // 0xFFE01104
   u32 icplb_addr2;        // 0xFFE01108
@@ -171,7 +171,7 @@ typedef struct _bf_L1_imem_ctrl_t { {
   u32 icplb_addr13;       // 0xFFE01134
   u32 icplb_addr14;       // 0xFFE01138
   u32 icplb_addr15;       // 0xFFE0113C
-  u8  pad01[0x200-0x140 + 4];
+  u8  pad01[0x200-0x13C - 4];
   u32 icplb_data0;        // 0xFFE01200
   u32 icplb_data1;        // 0xFFE01204
   u32 icplb_data2;        // 0xFFE01208
@@ -188,9 +188,9 @@ typedef struct _bf_L1_imem_ctrl_t { {
   u32 icplb_data13;       // 0xFFE01234
   u32 icplb_data14;       // 0xFFE01238
   u32 icplb_data15;       // 0xFFE0123C
-  u8  pad02[0x300-0x240 + 4];
+  u8  pad02[0x300-0x23C - 4];
   u32 itest_command;      // 0xFFE01300
-  u8  pad03[0x400-0x300 + 4];
+  u8  pad03[0x400-0x300 - 4];
   u32 itest_data0;        // 0xFFE01400
   u32 itest_data1;        // 0xFFE01404
 } bf_L1_imem_ctrl_t;
@@ -220,7 +220,7 @@ typedef struct _bf_L1_imem_ctrl_t { {
 #define ILAT_ADDR                (0xFFE0210C)  /* “ILAT Register” on page 4-40 */
 #define IPRIO_ADDR               (0xFFE02110)  /* “IPRIO Register and Write Buffer Depth” on page 6-40 */
 
-typedef struct _bf_evt_t { {
+typedef struct _bf_evt_t { 
   u8      start[ EVT0_ADDR - BLACKFIN_MMR_BASE ];
   void*   evt0;                // 0xFFE02000
   void*   evt1;                // 0xFFE02004
@@ -238,7 +238,7 @@ typedef struct _bf_evt_t { {
   void*   evt13;               // 0xFFE02034
   void*   evt14;               // 0xFFE02038
   void*   evt15;               // 0xFFE0203C
-  u8      pad00[ 0x104 - 0x3c + 4 ];
+  u8      pad00[ 0x104 - 0x3c - 4 ];
   void*   imask;               // 0xFFE02104
   void*   ipend;               // 0xFFE02108
   void*   ilat;                // 0xFFE0210C
@@ -249,7 +249,7 @@ typedef struct _bf_evt_t { {
 // Debug, MP, and Emulation Unit Registers
 //
 #define DSPID_ADDR              (0xFFE05000)  /* “DSPID Register” on page 21-32 */
-typedef struct _bf_dsp_id_t { {
+typedef struct _bf_dsp_id_t { 
   u8  start[ DSPID_ADDR - BLACKFIN_MMR_BASE ];
   u32 dspid;              // 0xFFE05000
 } bf_dsp_id_t;
@@ -261,11 +261,11 @@ typedef struct _bf_dsp_id_t { {
 #define TBUFSTAT_ADDR           (0xFFE06004)  /* “TBUFSTAT Register” on page 21-17 */
 #define TBUF_ADDR               (0xFFE06100)  /* “TBUF Register” on page 21-18 */
 
-typedef struct _bf_trace_t { {
+typedef struct _bf_trace_t { 
   u8      start[ TBUFCTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     tbufctl;            // 0xFFE06000
   u32     tbufstat;           // 0xFFE06004
-  u8      pad00[0x100 - 0x004 + 4];
+  u8      pad00[0x100 - 0x004 - 4];
   u32     tbuf;               // 0xFFE06100
 } bf_trace_t;
 
@@ -292,32 +292,32 @@ typedef struct _bf_trace_t { {
 #define WPDACNT1_ADDR         (0xFFE07184)  /* “WPDACNTx Registers” on page 21-12 */
 #define WPSTAT_ADDR           (0xFFE07200)  /* “WPSTAT Register” on page 21-14 */
 
-typedef struct _bf_watchpoint_t { {
-  u8      start[ TBUFCTL_ADDR - BLACKFIN_MMR_BASE ];
+typedef struct _bf_watchpoint_t { 
+  u8      start[ WPIACTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     wpiactl;          // 0xFFE07000
-  u8      pad00[ 0x040 - 0x000 + 4 ];
+  u8      pad00[ 0x040 - 0x000 - 4 ];
   u32     wpia0;            // 0xFFE07040
   u32     wpia1;            // 0xFFE07044
   u32     wpia2;            // 0xFFE07048
   u32     wpia3;            // 0xFFE0704C
   u32     wpia4;            // 0xFFE07050
   u32     wpia5;            // 0xFFE07054
-  u8      pad01[ 0x080 - 0x054 + 4 ];
+  u8      pad01[ 0x080 - 0x054 - 4 ];
   u32     wpiacnt0;         // 0xFFE07080
   u32     wpiacnt1;         // 0xFFE07084
   u32     wpiacnt2;         // 0xFFE07088
   u32     wpiacnt3;         // 0xFFE0708C
   u32     wpiacnt4;         // 0xFFE07090
   u32     wpiacnt5;         // 0xFFE07094
-  u8      pad02[ 0x100 - 0x094 + 4 ];
+  u8      pad02[ 0x100 - 0x094 - 4 ];
   u32     wpdactl;          // 0xFFE07100
-  u8      pad03[ 0x140 - 0x100 + 4 ];
+  u8      pad03[ 0x140 - 0x100 - 4 ];
   u32     wpda0;            // 0xFFE07140
   u32     wpda1;            // 0xFFE07144
-  u8      pad04[ 0x180 - 0x144 + 4 ];
+  u8      pad04[ 0x180 - 0x144 - 4 ];
   u32     wpdacnt0;         // 0xFFE07180
   u32     wpdacnt1;         // 0xFFE07184
-  u8      pad05[ 0x200 - 0x184 + 4 ];
+  u8      pad05[ 0x200 - 0x184 - 4 ];
   u32     wpstat;           // 0xFFE07200
 } bf_watchpoint_t;
 
@@ -330,9 +330,10 @@ typedef struct _bf_watchpoint_t { {
 #define PFCNTR0_ADDR          (0xFFE08100)  /* “PFCNTRx Registers” on page 21-21 */
 #define PFCNTR1_ADDR          (0xFFE08104)  /* “PFCNTRx Registers” on page 21-21 */
 
-typedef struct _bf_perfmon_t { {
+typedef struct _bf_perfmon_t { 
   u8      start[ PFCTL_ADDR - BLACKFIN_MMR_BASE ];
   u32     pfctl;            // 0xffe08000
+  u8      pad00[0x100 - 0x00 - 4];
   u32     pfcntr0;          // 0xffe08100
   u32     pfcntr1;          // 0xffe08104
 } bf_perfmon_t;
