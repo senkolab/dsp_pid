@@ -352,4 +352,9 @@ typedef union _blackfin_core_t {
   bf_perfmon_t          perfmon;
 } blackfin_core_t;
 
+
+//
+// macro for SSYNC instruction
+//
+#define SSYNC(x)    { asm("SSYNC; "); }
 #endif /* _BLACKFIN_CORE_H_ */

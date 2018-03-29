@@ -15,7 +15,7 @@ void test_sys(void);
 #define assert(x)   if( !(x) ) asm("emuexcpt;");
 
 // create the base register
-const bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
+bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 int main(int argc, const char** argv)
 {

@@ -42,7 +42,7 @@ TestProject_Debug : ./Debug/TestProject.dxe
 	@echo "..\..\blackfin\algorithm\pid.asm"
 	$(VDSP)/easmblkfn.exe ..\..\blackfin\algorithm\pid.asm -proc ADSP-BF592-A -file-attr ProjectName=TestProject -g -I..\blackfin\include\algorithm -si-revision 0.2 -o .\Debug\pid.doj -MM
 
-Debug/TestProject.doj :TestProject.c ../../blackfin/include/algorithm/pid.h ../../blackfin/include/processor/bf592.h ../../blackfin/include/processor/blackfin_core.h ../../blackfin/include/types.h 
+./Debug/TestProject.doj :TestProject.c ../../blackfin/include/algorithm/pid.h ../../blackfin/include/processor/bf592.h ../../blackfin/include/processor/blackfin_core.h ../../blackfin/include/types.h 
 	@echo ".\TestProject.c"
 	$(VDSP)/ccblkfn.exe -c .\TestProject.c -file-attr ProjectName=TestProject -g -no-auto-attrs -no-builtin -structs-do-not-overlap -no-multiline -I ..\..\blackfin\include -no-std-inc -double-size-32 -decls-strong -warn-protos -si-revision 0.2 -proc ADSP-BF592-A -o .\Debug\TestProject.doj -MM
 
@@ -56,7 +56,7 @@ ifeq ($(MAKECMDGOALS),TestProject_Debug_clean)
 
 TestProject_Debug_clean:
 	-$(RM) ".\Debug\pid.doj"
-	-$(RM) "Debug\TestProject.doj"
+	-$(RM) ".\Debug\TestProject.doj"
 	-$(RM) ".\Debug\TestProject.dxe"
 	-$(RM) ".\Debug\*.ipa"
 	-$(RM) ".\Debug\*.opa"

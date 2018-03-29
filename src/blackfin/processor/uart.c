@@ -7,12 +7,15 @@
 #include <processor/bf592.h>
 #include <processor/uart.h>
 #include <types.h>
+#include <processor/power.h>
 
+
+#define UART_BUFSIZE 128
 // 
 // ring buffers for UART0
 //
-u8 uart_txbuf[UART_BUFSIZE];
-u8 uart_rxbuf[UART_BUFSIZE];
+u8 uart_tx_buf[UART_BUFSIZE];
+u8 uart_rx_buf[UART_BUFSIZE];
 
 //
 // length of unread bytes in buffer
@@ -25,6 +28,12 @@ s32 uart_rx_count;
 //
 s32 uart_tx_idx;
 s32 uart_rx_idx;
+
+
+//
+// prototypes
+//
+static void uart_set_baud(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 // uart_init() - initialize the UART subsystem
@@ -48,16 +57,24 @@ void uart_init() {
 ////////////////////////////////////////////////////////////////////////////////
 static void uart_set_baud()
 {
-  u16 div = (SYSCLK_FREQ) / ((UART_BAUD) * 16);
-  
-  blackfin->uart.uart_gctl.ucen = 1;
+  //
+  // set baud rate
+  //
+  blackfin->uart.uart_gctl.ucen = 0;
   blackfin->uart.uart_lcr.dlab = 1;
-  blackfin->uart.uart_dll = (div & 0xff);
-  blackfin->uart.uart_dlh_ier = (div >> 8);
+  blackfin->uart.uart_thr_rbr_dll = (div & 0xff);
+  blackfin->uart.uart_dlh_ier.dlh = (div >> 8);
   blackfin->uart.uart_lcr.stb = 0;    // 1 stop bit
   blackfin->uart.uart_lcr.wls = UART_LCR_WLS_8BIT;
   blackfin->uart.uart_lcr.pen = 0;
   blackfin->uart.uart_lcr.dlab = 0;
+  blackfin->uart.uart_gctl.ucen = 1;
+
+  //
+  // set port multiplexor to use UART
+  //
+  blackfin->port.portf_mux &= ~BIT(11) | ~BIT(12);
+  blackfin->port.portf_fer |= BIT(11) | BIT(12);
 
 }
 
@@ -79,7 +96,7 @@ void uart_tx_handler()
     if(uart_tx_count >= 0u)
     {
       // send next byte out
-      blackfin->uart.uart_thr = uart_tx_buf[ uart_tx_idx++ ];
+      blackfin->uart.uart_thr_rbr_dll = uart_tx_buf[ uart_tx_idx++ ];
 
       // circular increment position
       if( uart_tx_idx >= UART_BUFSIZE )
@@ -96,7 +113,7 @@ void uart_tx_handler()
         SSYNC();
 
       // disable tx interrupt becuase there is no more
-      blackfin->uart.uart_ier.etbei = 0;
+      blackfin->uart.uart_dlh_ier.ier.etbei = 0;
     }
   }
 }
@@ -116,7 +133,7 @@ void uart_rx_handler()
   SSYNC();
 
   // read the character 
-  newchar = blackfin->uart.uart_rbr;
+  newchar = blackfin->uart.uart_thr_rbr_dll;
 
   if( (status & 2) != 0 )   // Rx data ready buffer empty interrupt
   {
@@ -141,5 +158,5 @@ void uart_rx_handler()
 ////////////////////////////////////////////////////////////////////////////////
 s32 uart_putc(u8 c)
 {
-  
+    return -1;
 }

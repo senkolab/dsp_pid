@@ -17,5 +17,7 @@ typedef signed short s16;
 typedef unsigned int u32;
 typedef signed int s32;
 
+#define BIT(x)  ( 1 << (x) )
+
 #endif /* _TYPES_H */
 

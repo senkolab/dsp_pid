@@ -16,7 +16,7 @@
 //
 // save all registers for processing in C code
 //
-uart_isr:
+_uart_isr:
   [--SP] = ASTAT;
   [--SP] = RETS;
   [--SP] = (R7:0,P5:0);
@@ -60,8 +60,8 @@ uart_isr:
       SP +=  -12;
       
       // all work is done in handlers in C code
-      CALL _uart0_tx_handler;
-      CALL _uart0_rx_handler;
+      CALL _uart_tx_handler;
+      CALL _uart_rx_handler;
 
       SP +=  12;
   RETI = [SP++];
@@ -106,4 +106,5 @@ uart_isr:
   ASTAT = [SP++];
 
   RTI;
-_uart_isr.END;
+_uart_isr.END:
+

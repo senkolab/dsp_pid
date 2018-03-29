@@ -18,7 +18,7 @@
 
 // function prototypes
 extern void uart_init(void);
-extern void uart_putc(u8 c);
+extern s32 uart_putc(u8 c);
 extern void uart_getc(u8* c);
 
 #endif /* _UART_C_ */
