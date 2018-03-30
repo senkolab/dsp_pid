@@ -48,17 +48,102 @@ typedef struct _bf592_coretimer_t {
 #define SIC_ISR0_ADDR    (0xFFC00120)  /* “System Interrupt Status (SIC_ISR) Register” on page 4-12 */
 #define SIC_IWR0_ADDR    (0xFFC00124)  /* “System Interrupt Wakeup-Enable (SIC_IWR) Register” on page 4-13 */
 
+typedef struct _bf592_sic_iar0_t {
+  u32   pll_wakeup      : 4;
+  u32   dma_err         : 4;
+  u32   ppi_status      : 4;
+  u32   sport0_status   : 4;
+  u32   sport1_status   : 4;
+  u32   spi0_status     : 4;
+  u32   spi1_status     : 4;
+  u32   uart0_status    : 4;
+} bf592_sic_iar0_t;
+
+typedef struct _bf592_sic_iar1_t {
+  u32   ppi             : 4;
+  u32   sport0_rx       : 4;
+  u32   sport0_tx       : 4;
+  u32   sport1_rx       : 4;
+  u32   sport1_tx       : 4;
+  u32   spi0            : 4;
+  u32   spi1            : 4;
+  u32   uart0_rx        : 4;
+} bf592_sic_iar1_t;
+
+typedef struct _bf592_sic_iar2_t {
+  u32   uart0_tx        : 4;
+  u32   portf_a         : 4;
+  u32   portf_b         : 4;
+  u32   gptimer0        : 4;
+  u32   gptimer1        : 4;
+  u32   gptimer2        : 4;
+  u32   portg_a         : 4;
+  u32   portg_b         : 4;
+} bf592_sic_iar2_t;
+
+typedef struct _bf592_sic_iar3_t {
+  u32   twi             : 4;
+  u32                   : 4;
+  u32                   : 4;
+  u32                   : 4;
+  u32                   : 4;
+  u32   mdma0           : 4;
+  u32   mdma1           : 4;
+  u32   watchdog        : 4;
+} bf592_sic_iar3_t;
+
+// BF592 HWR Table 4-3 pg 4-18
+#define SIC_ID_WATCHDOG         BIT(31)
+#define SIC_ID_MDMA1            BIT(30)
+#define SIC_ID_MDMA0            BIT(29)
+#define SIC_ID_TWI              BIT(24)
+#define SIC_ID_PORTG_B          BIT(23)
+#define SIC_ID_PORTG_A          BIT(22)
+#define SIC_ID_GPTIMER2         BIT(21)
+#define SIC_ID_GPTIMER1         BIT(20)
+#define SIC_ID_GPTIMER0         BIT(19)
+#define SIC_ID_PORTF_B          BIT(18)
+#define SIC_ID_PORTF_A          BIT(17)
+#define SIC_ID_UART0_TX         BIT(16)
+#define SIC_ID_UART0_RX         BIT(15)
+#define SIC_ID_SPI1             BIT(14)
+#define SIC_ID_SPI0             BIT(13)
+#define SIC_ID_SPORT1_TX        BIT(11)
+#define SIC_ID_SPORT1_RX        BIT(11)
+#define SIC_ID_SPORT0_TX        BIT(10)
+#define SIC_ID_SPORT0_RX        BIT(9)
+#define SIC_ID_PPI              BIT(8)
+#define SIC_ID_UART0_STATUS     BIT(7)
+#define SIC_ID_SPI1_STATUS      BIT(6)
+#define SIC_ID_SPI0_STATUS      BIT(5)
+#define SIC_ID_SPORT1_STATUS    BIT(4)
+#define SIC_ID_SPORT0_STATUS    BIT(3)
+#define SIC_ID_PPI_STATUS       BIT(2)
+#define SIC_ID_DMA_ERR          BIT(1)
+#define SIC_ID_PLL_WAKEUP       BIT(0)
+
+// bf592 HWR Table 4-2 pg 4-12
+#define SIC_IAR_IVG7     0
+#define SIC_IAR_IVG8     1
+#define SIC_IAR_IVG9     2
+#define SIC_IAR_IVG10    3
+#define SIC_IAR_IVG11    4
+#define SIC_IAR_IVG12    5
+#define SIC_IAR_IVG13    6
+#define SIC_IAR_IVG14    7
+#define SIC_IAR_IVG15    8
+
 typedef struct _bf592_sic_t {
-  u8  start[ SYSCR_ADDR - BLACKFIN_MMR_BASE ];
-  u16 syscr;       // 0xFFC00104
-  u8  pad00[0x0c - 0x04 - 2];
-  u16 sic_imask0;  // 0xFFC0010C
-  u32 sic_iar0;    // 0xFFC00110
-  u32 sic_iar1;    // 0xFFC00114
-  u32 sic_iar2;    // 0xFFC00118
-  u32 sic_iar3;    // 0xFFC0011C
-  u32 sic_isr0;    // 0xFFC00120
-  u32 sic_iwr0;    // 0xFFC00124
+  u8                      start[ SYSCR_ADDR - BLACKFIN_MMR_BASE ];
+  u16                     syscr;       // 0xFFC00104
+  u8                      pad00[0x0c - 0x04 - 2];
+  u32                     sic_imask0;  // 0xFFC0010C
+  bf592_sic_iar0_t        sic_iar0;    // 0xFFC00110
+  bf592_sic_iar1_t        sic_iar1;    // 0xFFC00114
+  bf592_sic_iar2_t        sic_iar2;    // 0xFFC00118
+  bf592_sic_iar3_t        sic_iar3;    // 0xFFC0011C
+  u32                     sic_isr0;    // 0xFFC00120
+  u32                     sic_iwr0;    // 0xFFC00124
 } bf592_sic_t;
 
 
@@ -367,6 +452,75 @@ typedef struct _bf592_dma_t {
 #define PORTF_MUX_ADDR                (0xFFC01104)  /* “Port Multiplexer Control Register” on page 7-21 */
 #define PORTG_MUX_ADDR                (0xFFC01204)  /* “Port Multiplexer Control Register” on page 7-21 */
 
+
+#define nDR1SEC_PORTF_BIT        BIT(0)
+#define nDR1PRI_PORTF_BIT        BIT(1)
+#define nRSCLK1_PORTF_BIT        BIT(2)
+#define nRFS1_PORTF_BIT          BIT(3)
+#define nDT1SEC_PORTF_BIT        BIT(4)
+#define nDT1PRI_PORTF_BIT        BIT(5)
+#define nTSCLK1_PORTF_BIT        BIT(6)
+#define nTFS1_PORTF_BIT          BIT(7)
+#define nTMR2_PORTF_BIT          BIT(8)
+#define nTMR0_PORTF_BIT          BIT(9)
+#define nPPI_FS1_PORTF_BIT       BIT(9)
+#define nTMR1_PORTF_BIT          BIT(10)
+#define nPPI_FS2_PORTF_BIT       BIT(10)
+#define nUART0TX_PORTF_BIT       BIT(11)
+#define nUART0RX_PORTF_BIT       BIT(12)
+#define nSPI0MOSI_PORTF_BIT      BIT(13)
+#define nSPI0MISO_PORTF_BIT      BIT(14)
+#define nSPI0CLK_PORTF_BIT       BIT(15)
+                              
+#define PPI8_PORTF_BIT          BIT(0)
+#define PPI9_PORTF_BIT          BIT(1)
+#define PPI10_PORTF_BIT         BIT(2)
+#define PPI11_PORTF_BIT         BIT(3)
+#define PPI12_PORTF_BIT         BIT(4)
+#define PPI13_PORTF_BIT         BIT(5)
+#define PPI14_PORTF_BIT         BIT(6)
+#define PPI15_PORTF_BIT         BIT(7)
+#define SPI0SSEL2_PORTF_BIT     BIT(8)
+#define SPI0SSEL3_PORTF_BIT     BIT(9)
+#define SPI0SSEL4_PORTF_BIT     BIT(11)
+#define SPI0SSEL7_PORTF_BIT     BIT(12)
+#define SPI1SSEL3_PORTF_BIT     BIT(13)
+#define SPI1SSEL4_PORTF_BIT     BIT(14)
+#define SPI0CLK_PORTF_BIT       BIT(15)
+
+#define nDR0SEC_PORTG_BIT        BIT(0)
+#define nDR0PRI_PORTG_BIT        BIT(1)
+#define nRSCLK0_PORTG_BIT        BIT(2)
+#define nRFS0_PORTG_BIT          BIT(3)
+#define nDT0SEC_PORTG_BIT        BIT(4)
+#define nDT0PRI_PORTG_BIT        BIT(5)
+#define nTSCLK0_PORTG_BIT        BIT(6)
+#define nTFS0_PORTG_BIT          BIT(7)
+#define nSPI1CLK_PORTG_BIT       BIT(8)
+#define nSPI1MOSI_PORTG_BIT      BIT(9)
+#define nSPI1MISO_PORTG_BIT      BIT(10)
+#define nSPI1SSEL5_PORTG_BIT     BIT(11)
+#define nSPI1SSEL2_PORTG_BIT     BIT(12)
+#define nSPI1SSEL1_PORTG_BIT     BIT(13)
+#define nSPI1SSEL4_PORTG_BIT     BIT(14)
+#define nSPI1SSEL6_PORTG_BIT     BIT(15)
+
+#define SPI0SSEL1_PORTG_BIT     BIT(0)
+#define SPI1SSEL1_PORTG_BIT     BIT(1)
+#define SPI0SSEL5_PORTG_BIT     BIT(2)
+#define PPI_FS3_PORTG_BIT       BIT(3)
+#define SPI0SSEL6_PORTG_BIT     BIT(4)
+#define SPI1SSEL6_PORTG_BIT     BIT(5)
+#define SPI1SSEL7_PORTG_BIT     BIT(7)
+#define PPI0_PORTG_BIT          BIT(8)
+#define PPI1_PORTG_BIT          BIT(9)
+#define PPI2_PORTG_BIT          BIT(10)
+#define PPI3_PORTG_BIT          BIT(11)
+#define PPI4_PORTG_BIT          BIT(12)
+#define PPI5_PORTG_BIT          BIT(13)
+#define PPI6_PORTG_BIT          BIT(14)
+#define PPI7_PORTG_BIT          BIT(15)
+
 typedef struct _bf592_port_t {
   u8          start[ PORTFIO_ADDR - BLACKFIN_MMR_BASE ];
   u16         portfio;                  // 0xFFC00700
@@ -520,21 +674,31 @@ typedef struct _bf592_watchdog_t {
 #define PLL_LOCKCNT_ADDR        (0xFFC00010)  /* “PLL_LOCKCNT Register” on page 6-22 */
 
 typedef struct _bf592_vr_ctl_t {
-  u16   polarity      :     1;
-  u16   extclk_oe     :     1;
-  u16   extclk_sel    :     1;
-  u16   hibernateb    :     1;
-  u16   wake_en3      :     1;
-  u16   wake_en2      :     1;
-  u16   wake_en1      :     1;
-  u16   wake_en0      :     1;
   u16                 :     8;
+  u16   wake_en0      :     1;
+  u16   wake_en1      :     1;
+  u16   wake_en2      :     1;
+  u16   wake_en3      :     1;
+  u16   hibernateb    :     1;
+  u16   extclk_sel    :     1;
+  u16   extclk_oe     :     1;
+  u16   polarity      :     1;
 } bf592_vr_ctl_t;
 
+typedef struct _bf592_pll_stat_t {
+  u16   active_pllenabled   : 1;
+  u16   full_on             : 1;
+  u16   active_plldisabled  : 1;
+  u16                       : 2;
+  u16   pll_locked          : 1;
+  u16                       : 1;
+  u16   vstat               : 1;
+  u16                       : 8;
+} bf592_pll_stat_t;
 
 typedef struct _bf592_power_t {
   u8                start[ PLL_CTL_ADDR - BLACKFIN_MMR_BASE ];
-  u16               pll_ctl;
+  bf592_pll_stat_t  pll_ctl;
   u8                pad00[2];
   u16               pll_div;
   u8                pad01[2];
@@ -664,63 +828,151 @@ typedef struct _bf592_spi_t {
 #define SPORT1_MRCS3_ADDR         (0xFFC0095C)  /* “SPORT Multichannel Receive Selection (SPORT_MRCSn) Registers” on page 14-69 */
 #define SPORT_CLKGATE_ADDR        (0xFFC0120C)  /* “SPORT Clock Gating Register” on page 14-81 */
 
-typedef struct _bf592_sport01_t {
-  u16         tcr1;                  // 0xFFC00800      0xFFC00900 
-  u8          pad00[ 0x804 - 0x800 - 2];
-  u16         tcr2;                  // 0xFFC00804      0xFFC00904
-  u8          pad01[ 0x808 - 0x804 - 2];
-  u16         tclkdiv;               // 0xFFC00808      0xFFC00908
-  u8          pad02[ 0x80c - 0x808 - 2];
-  u16         tfsdiv;                // 0xFFC0080C      0xFFC0090C
-  u8          pad03[ 0x810 - 0x80c - 2];
-  u32         tx;                    // 0xFFC00810      0xFFC00910
-  u8          pad04[ 0x818 - 0x810 - 4];
-  u32         rx;                    // 0xFFC00818      0xFFC00918
-  u8          pad05[ 0x820 - 0x818 - 4];
-  u16         rcr1;                  // 0xFFC00820      0xFFC00920
-  u8          pad06[ 0x824 - 0x820 - 2];
-  u16         rcr2;                  // 0xFFC00824      0xFFC00924
-  u8          pad07[ 0x828 - 0x824 - 2];
-  u16         rclkdiv;               // 0xFFC00828      0xFFC00928
-  u8          pad08[ 0x82c - 0x828 - 2];
-  u16         rfsdiv;                // 0xFFC0082C      0xFFC0092C
-  u8          pad09[ 0x830 - 0x82c - 2];
-  u16         stat;                  // 0xFFC00830      0xFFC00930
-  u8          pad10[ 0x834 - 0x830 - 2];
-  u16         chnl;                  // 0xFFC00834      0xFFC00934
-  u8          pad11[ 0x838 - 0x834 - 2];
-  u16         mcmc1;                 // 0xFFC00838      0xFFC00938
-  u8          pad12[ 0x83c - 0x838 - 2];
-  u16         mcmc2;                 // 0xFFC0083C      0xFFC0093C
-  u8          pad13[ 0x840 - 0x83c - 2];
-  u32         mtcs0;                 // 0xFFC00840      0xFFC00940
-  u8          pad14[ 0x844 - 0x840 - 4];
-  u32         mtcs1;                 // 0xFFC00844      0xFFC00944
-  u8          pad15[ 0x848 - 0x844 - 4];
-  u32         mtcs2;                 // 0xFFC00848      0xFFC00948
-  u8          pad16[ 0x84c - 0x848 - 4];
-  u32         mtcs3;                 // 0xFFC0084C      0xFFC0094C
-  u8          pad17[ 0x850 - 0x84c - 4];
-  u32         mrcs0;                 // 0xFFC00850      0xFFC00950
-  u8          pad18[ 0x854 - 0x850 - 4];
-  u32         mrcs1;                 // 0xFFC00854      0xFFC00954
-  u8          pad19[ 0x858 - 0x854 - 4];
-  u32         mrcs2;                 // 0xFFC00858      0xFFC00958
-  u8          pad20[ 0x85c - 0x858 - 4];
-  u32         mrcs3;                 // 0xFFC0085C      0xFFC0095C
-  u8          pad21[ 0x900 - 0x85c - 4];
+typedef struct _bf592_sportx_tcr1 {
+  u16         tspen   : 1;
+  u16         itclk   : 1;
+  u16         tdtype  : 2;
+  u16         tlsbit  : 1;
+  u16                 : 4;
+  u16         itfs    : 1;
+  u16         tfsr    : 1;
+  u16         ditfs   : 1;
+  u16         ltfs    : 1;
+  u16         latfs   : 1;
+  u16         tckfe   : 1;
+  u16                 : 1;  
+} bf592_sportx_tcr1_t;
 
+typedef struct _bf592_sportx_tcr2 {
+  u16         slen    : 5;
+  u16                 : 3;
+  u16         txse    : 1;
+  u16         tsfse   : 1;
+  u16         trfst   : 1;
+  u16                 : 5;
+} bf592_sportx_tcr2_t;
+
+
+typedef struct _bf592_sportx_rcr1 {
+  u16         rspen   : 1;
+  u16         irclk   : 1;
+  u16         rdtype  : 2;
+  u16         rlsbit  : 1;
+  u16                 : 4;
+  u16         irfs    : 1;
+  u16         rfsr    : 1;
+  u16                 : 1;
+  u16         lrfs    : 1;
+  u16         larfs   : 1;
+  u16         rckfe   : 1;
+  u16                 : 1;  
+} bf592_sportx_rcr1_t;
+
+typedef struct _bf592_sportx_rcr2 {
+  u16         slen    : 5;
+  u16                 : 3;
+  u16         rxse    : 1;
+  u16         rsfse   : 1;
+  u16         rrfst   : 1;
+  u16                 : 5;
+} bf592_sportx_rcr2_t;
+
+typedef struct _bf592_sportx_stat {
+  u16         rxne    : 1;
+  u16         ruvf    : 1;
+  u16         rovf    : 1;
+  u16         txf     : 1;
+  u16         tuvf    : 1;
+  u16         tovf    : 1;
+  u16         txhre   : 1;
+  u16                 : 9;
+} bf592_sportx_stat_t;
+
+typedef struct _bf592_sportx_mcmc1 {
+  u16         woff    : 10;
+  u16                 : 2;
+  u16         wsize   : 4;
+} bf592_sportx_mcmc1_t;
+
+typedef struct _bf592_sportx_mcmc2 {
+  u16         mccrm   : 2;
+  u16         mcdtxpe : 1;
+  u16         mcdrxpe : 1;
+  u16         mcmen   : 1;
+  u16                 : 2;
+  u16         fsdr    : 1;
+  u16                 : 4;
+  u16         mfd     : 4;
+} bf592_sportx_mcmc2_t;
+
+typedef struct _bf592_sportx_gateclk {
+  u16         sport0_gce  : 1;
+  u16         sport0_adce : 1;
+  u16         sport0_idle : 1;
+  u16                     : 1;
+  u16         sport1_gce  : 1;
+  u16         sport1_adce : 1;
+  u16         sport1_idle : 1;
+  u16                     : 1;
+  u16                     : 10;
+} bf592_sportx_gateclk_t;
+
+typedef struct _bf592_sport01_t {
+  bf592_sportx_tcr1_t   tcr1;                  // 0xFFC00800      0xFFC00900 
+  u8                    pad00[ 0x804 - 0x800 - 2];
+  bf592_sportx_tcr2_t   tcr2;                  // 0xFFC00804      0xFFC00904
+  u8                    pad01[ 0x808 - 0x804 - 2];
+  u16                   tclkdiv;               // 0xFFC00808      0xFFC00908
+  u8                    pad02[ 0x80c - 0x808 - 2];
+  u16                   tfsdiv;                // 0xFFC0080C      0xFFC0090C
+  u8                    pad03[ 0x810 - 0x80c - 2];
+  union {u32 word; u16 half; } tx;                    // 0xFFC00810      0xFFC00910
+  u8                    pad04[ 0x818 - 0x810 - 4];
+  union {u32 word; u16 half; } rx;                    // 0xFFC00818      0xFFC00918
+  u8                    pad05[ 0x820 - 0x818 - 4];
+  bf592_sportx_rcr1_t   rcr1;                  // 0xFFC00820      0xFFC00920
+  u8                    pad06[ 0x824 - 0x820 - 2];
+  bf592_sportx_rcr2_t   rcr2;                  // 0xFFC00824      0xFFC00924
+  u8                    pad07[ 0x828 - 0x824 - 2];
+  u16                   rclkdiv;               // 0xFFC00828      0xFFC00928
+  u8                    pad08[ 0x82c - 0x828 - 2];
+  u16                   rfsdiv;                // 0xFFC0082C      0xFFC0092C
+  u8                    pad09[ 0x830 - 0x82c - 2];
+  bf592_sportx_stat_t   stat;                  // 0xFFC00830      0xFFC00930
+  u8                    pad10[ 0x834 - 0x830 - 2];
+  u16                   chnl;                  // 0xFFC00834      0xFFC00934
+  u8                    pad11[ 0x838 - 0x834 - 2];
+  bf592_sportx_mcmc1_t  mcmc1;                 // 0xFFC00838      0xFFC00938
+  u8                    pad12[ 0x83c - 0x838 - 2];
+  bf592_sportx_mcmc2_t  mcmc2;                 // 0xFFC00838      0xFFC00938
+  u8                    pad13[ 0x840 - 0x83c - 2];
+  u32                   mtcs0;                 // 0xFFC00840      0xFFC00940
+  u8                    pad14[ 0x844 - 0x840 - 4];
+  u32                   mtcs1;                 // 0xFFC00844      0xFFC00944
+  u8                    pad15[ 0x848 - 0x844 - 4];
+  u32                   mtcs2;                 // 0xFFC00848      0xFFC00948
+  u8                    pad16[ 0x84c - 0x848 - 4];
+  u32                   mtcs3;                 // 0xFFC0084C      0xFFC0094C
+  u8                    pad17[ 0x850 - 0x84c - 4];
+  u32                   mrcs0;                 // 0xFFC00850      0xFFC00950
+  u8                    pad18[ 0x854 - 0x850 - 4];
+  u32                   mrcs1;                 // 0xFFC00854      0xFFC00954
+  u8                    pad19[ 0x858 - 0x854 - 4];
+  u32                   mrcs2;                 // 0xFFC00858      0xFFC00958
+  u8                    pad20[ 0x85c - 0x858 - 4];
+  u32                   mrcs3;                 // 0xFFC0085C      0xFFC0095C
+  u8                    pad21[ 0x900 - 0x85c - 4];
 } bf592_sport01_t;
 
 typedef struct _bf592_sport_t {
-  u8              start [ SPORT0_TCR1_ADDR - BLACKFIN_MMR_BASE ];
-  bf592_sport01_t sport[2];                 // FFC00800 FFC00900
-  u8              pad00[ 0x120c - 0xa00];
-  u16             sport_clkgate;                // 0xFFC0120C
+  u8                      start [ SPORT0_TCR1_ADDR - BLACKFIN_MMR_BASE ];
+  bf592_sport01_t         sport[2];                 // FFC00800 FFC00900
+  u8                      pad00[ 0x120c - 0xa00];
+  bf592_sportx_gateclk_t  sport_clkgate;                // 0xFFC0120C
 
 } bf592_sport_t;
 // 
-// UART Controller Registers
+// UART Controller Registers
 // 
 #define UART_THR_ADDR            (0xFFC00400)  /* “UART Transmit Holding (UART_THR) Register” on page 11-26 */
 #define UART_RBR_ADDR            (0xFFC00400)  /* “UART Receive Buffer (UART_RBR) Register” on page 11-27 */

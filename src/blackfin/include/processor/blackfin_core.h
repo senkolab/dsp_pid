@@ -220,29 +220,52 @@ typedef struct _bf_L1_imem_ctrl_t {
 #define ILAT_ADDR                (0xFFE0210C)  /* “ILAT Register” on page 4-40 */
 #define IPRIO_ADDR               (0xFFE02110)  /* “IPRIO Register and Write Buffer Depth” on page 6-40 */
 
+typedef union _bf_imask_t
+{
+    struct
+    {
+        u32         : 5;
+        u32 ivhw    : 1;
+        u32 ivtmr   : 1;
+        u32 ivg7    : 1;
+        u32 ivg8    : 1;
+        u32 ivg9    : 1;
+        u32 ivg10   : 1;
+        u32 ivg11   : 1;
+        u32 ivg12   : 1;
+        u32 ivg13   : 1;
+        u32 ivg14   : 1;
+        u32 ivg15   : 1;
+        u32         : 16;
+    };
+
+    u32 whole;
+} bf_imask_t;
+
+ 
 typedef struct _bf_evt_t { 
-  u8      start[ EVT0_ADDR - BLACKFIN_MMR_BASE ];
-  void*   evt0;                // 0xFFE02000
-  void*   evt1;                // 0xFFE02004
-  void*   evt2;                // 0xFFE02008
-  void*   evt3;                // 0xFFE0200C
-  void*   evt4;                // 0xFFE02010
-  void*   evt5;                // 0xFFE02014
-  void*   evt6;                // 0xFFE02018
-  void*   evt7;                // 0xFFE0201C
-  void*   evt8;                // 0xFFE02020
-  void*   evt9;                // 0xFFE02024
-  void*   evt10;               // 0xFFE02028
-  void*   evt11;               // 0xFFE0202C
-  void*   evt12;               // 0xFFE02030
-  void*   evt13;               // 0xFFE02034
-  void*   evt14;               // 0xFFE02038
-  void*   evt15;               // 0xFFE0203C
-  u8      pad00[ 0x104 - 0x3c - 4 ];
-  void*   imask;               // 0xFFE02104
-  void*   ipend;               // 0xFFE02108
-  void*   ilat;                // 0xFFE0210C
-  void*   iprio;               // 0xFFE02110
+  u8            start[ EVT0_ADDR - BLACKFIN_MMR_BASE ];
+  void*         evt0;                // 0xFFE02000
+  void*         evt1;                // 0xFFE02004
+  void*         evt2;                // 0xFFE02008
+  void*         evt3;                // 0xFFE0200C
+  void*         evt4;                // 0xFFE02010
+  void*         evt5;                // 0xFFE02014
+  void*         evt6;                // 0xFFE02018
+  void*         evt7;                // 0xFFE0201C
+  void*         evt8;                // 0xFFE02020
+  void*         evt9;                // 0xFFE02024
+  void*         evt10;               // 0xFFE02028
+  void*         evt11;               // 0xFFE0202C
+  void*         evt12;               // 0xFFE02030
+  void*         evt13;               // 0xFFE02034
+  void*         evt14;               // 0xFFE02038
+  void*         evt15;               // 0xFFE0203C
+  u8            pad00[ 0x104 - 0x3c - 4 ];
+  bf_imask_t    imask;               // 0xFFE02104
+  bf_imask_t    ipend;               // 0xFFE02108
+  bf_imask_t    ilat;                // 0xFFE0210C
+  bf_imask_t    iprio;               // 0xFFE02110
 } bf_evt_t;
 
 // 
