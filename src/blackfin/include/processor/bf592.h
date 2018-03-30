@@ -1146,6 +1146,6 @@ typedef union _bf592_t {
 //
 // master base MMR register prototype
 //
-extern bf592_t* blackfin;
+extern volatile bf592_t* blackfin;
 #endif /* _BF592_H_ */
 
