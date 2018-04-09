@@ -15,7 +15,7 @@
 
 extern void sport0_isr();
 
-bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
+volatile bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 int main( void )
 {
@@ -58,26 +58,27 @@ int main( void )
     blackfin->sport.sport[0].rcr1.irfs      = 0;
     blackfin->sport.sport[0].rcr1.rfsr      = 1;
     blackfin->sport.sport[0].rcr1.lrfs      = 1;
-    blackfin->sport.sport[0].rcr1.larfs     = 0;
-    blackfin->sport.sport[0].rcr1.rckfe     = 1;
+    blackfin->sport.sport[0].rcr1.larfs     = 1;
+    blackfin->sport.sport[0].rcr1.rckfe     = 0;
 
     blackfin->sport.sport[0].rcr2.slen      = 15;
     blackfin->sport.sport[0].rcr2.rxse      = 0;
     blackfin->sport.sport[0].rcr2.rsfse     = 1;
     blackfin->sport.sport[0].rcr2.rrfst     = 0;
 
-    blackfin->sport.sport[0].rcr1.rspen     = 1;
+    blackfin->sport.sport[0].rfsdiv = 31 ;
+    blackfin->sport.sport[0].rclkdiv = 0;
 
 
     blackfin->sport.sport[0].tcr1.tspen   = 0;
-    blackfin->sport.sport[0].tcr1.itclk   = 0;
+    blackfin->sport.sport[0].tcr1.itclk   = 1;
     blackfin->sport.sport[0].tcr1.tdtype  = 0;
     blackfin->sport.sport[0].tcr1.tlsbit  = 0;
-    blackfin->sport.sport[0].tcr1.itfs    = 0;
+    blackfin->sport.sport[0].tcr1.itfs    = 1;
     blackfin->sport.sport[0].tcr1.tfsr    = 1;
     blackfin->sport.sport[0].tcr1.ditfs   = 0;
-    blackfin->sport.sport[0].tcr1.ltfs    = 0;
-    blackfin->sport.sport[0].tcr1.latfs   = 0;
+    blackfin->sport.sport[0].tcr1.ltfs    = 1;
+    blackfin->sport.sport[0].tcr1.latfs   = 1;
     blackfin->sport.sport[0].tcr1.tckfe   = 0;
 
     blackfin->sport.sport[0].tcr2.slen    = 15;
@@ -85,10 +86,12 @@ int main( void )
     blackfin->sport.sport[0].tcr2.tsfse   = 1;
     blackfin->sport.sport[0].tcr2.trfst   = 0;
     
-    blackfin->sport.sport[0].tfsdiv = 1;
-    blackfin->sport.sport[0].tclkdiv = 1;
+    blackfin->sport.sport[0].tfsdiv = 32 ;
+    blackfin->sport.sport[0].tclkdiv = 0;
     
+
     blackfin->sport.sport[0].tcr1.tspen   = 1;
+    blackfin->sport.sport[0].rcr1.rspen     = 1;
 
     blackfin->sport.sport[0].mcmc2.mcmen = 0;
     
@@ -104,20 +107,36 @@ int main( void )
 	return 0;
 }
 
+//static const s16 tx_buffer[] = {-32767, -32767, -23170, -23170, 0, 0, 23170, 23170, 32767, 32767, 23170, 23170, 0, 0, -23170, -23170};
+//static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -16384, -16384, 32767, 32767, 32767, 32767, 16384, 16384};
+static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, 
+                                32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767 };
+
+static const s32 tx_size = sizeof(tx_buffer)/sizeof(tx_buffer[0]);
+static u32 tx_idx;
 
 //
 // TX interrupt handler (vectored from Assembly Code)
 //
 void sport0_tx_handler() 
 {
+    s16 sample;
     
     SSYNC();    
     if(blackfin->sport.sport[0].tcr1.tspen == 0)
         return;
 
+    
+    
     // is TX holding register empty?6
     if(blackfin->sport.sport[0].stat.txhre == 1)
-        blackfin->sport.sport[0].tx.half = 0x100;
+    {
+        sample = tx_buffer[tx_idx++];
+        if(tx_idx >= tx_size)
+            tx_idx = 0;
+            
+        blackfin->sport.sport[0].tx.half = sample;
+    }
 }
 
 //
