@@ -17,7 +17,7 @@ short ref[BUF_LEN];
 #include <algorithm\pid.h>
 #include <processor\bf592.h>
 
-pid_state_t state = PID_INIT(0, 16000, 0);
+pid_state_t state = PID_INIT(0, 16000, 500);
 
 //
 // main routine

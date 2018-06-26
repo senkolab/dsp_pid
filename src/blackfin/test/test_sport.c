@@ -61,12 +61,12 @@ int main( void )
     blackfin->sport.sport[0].rcr1.larfs     = 1;
     blackfin->sport.sport[0].rcr1.rckfe     = 0;
 
-    blackfin->sport.sport[0].rcr2.slen      = 15;
+    blackfin->sport.sport[0].rcr2.slen      = 31;
     blackfin->sport.sport[0].rcr2.rxse      = 0;
     blackfin->sport.sport[0].rcr2.rsfse     = 1;
     blackfin->sport.sport[0].rcr2.rrfst     = 0;
 
-    blackfin->sport.sport[0].rfsdiv = 31 ;
+    blackfin->sport.sport[0].rfsdiv = 511 ;
     blackfin->sport.sport[0].rclkdiv = 0;
 
 
@@ -81,12 +81,12 @@ int main( void )
     blackfin->sport.sport[0].tcr1.latfs   = 1;
     blackfin->sport.sport[0].tcr1.tckfe   = 0;
 
-    blackfin->sport.sport[0].tcr2.slen    = 15;
+    blackfin->sport.sport[0].tcr2.slen    = 31;
     blackfin->sport.sport[0].tcr2.txse    = 0;
     blackfin->sport.sport[0].tcr2.tsfse   = 1;
     blackfin->sport.sport[0].tcr2.trfst   = 0;
     
-    blackfin->sport.sport[0].tfsdiv = 32 ;
+    blackfin->sport.sport[0].tfsdiv = 511 ;
     blackfin->sport.sport[0].tclkdiv = 0;
     
 
@@ -135,7 +135,7 @@ void sport0_tx_handler()
         if(tx_idx >= tx_size)
             tx_idx = 0;
             
-        blackfin->sport.sport[0].tx.half = sample;
+        blackfin->sport.sport[0].tx.word = sample;
     }
 }
 
@@ -153,5 +153,5 @@ void sport0_rx_handler()
 
     // is RX not empty? -- generates interrupt
     if(blackfin->sport.sport[0].stat.rxne == 0)
-        inbyte = blackfin->sport.sport[0].rx.half;   
+        inbyte = blackfin->sport.sport[0].rx.word;   
 }
