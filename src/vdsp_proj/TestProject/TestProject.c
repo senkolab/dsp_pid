@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 	// preparation
 	for(n=0; n<BUF_LEN; n++)
 	{
-		ref[n] = 1000;
+		ref[n] = n % 256;
 		output[n] = 0;
 		
 	}

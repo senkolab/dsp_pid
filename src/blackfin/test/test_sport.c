@@ -61,7 +61,7 @@ int main( void )
     blackfin->sport.sport[0].rcr1.larfs     = 1;
     blackfin->sport.sport[0].rcr1.rckfe     = 0;
 
-    blackfin->sport.sport[0].rcr2.slen      = 31;
+    blackfin->sport.sport[0].rcr2.slen      = 23;
     blackfin->sport.sport[0].rcr2.rxse      = 0;
     blackfin->sport.sport[0].rcr2.rsfse     = 1;
     blackfin->sport.sport[0].rcr2.rrfst     = 0;
@@ -70,28 +70,28 @@ int main( void )
     blackfin->sport.sport[0].rclkdiv = 0;
 
 
-    blackfin->sport.sport[0].tcr1.tspen   = 0;
-    blackfin->sport.sport[0].tcr1.itclk   = 1;
-    blackfin->sport.sport[0].tcr1.tdtype  = 0;
-    blackfin->sport.sport[0].tcr1.tlsbit  = 0;
-    blackfin->sport.sport[0].tcr1.itfs    = 1;
-    blackfin->sport.sport[0].tcr1.tfsr    = 1;
-    blackfin->sport.sport[0].tcr1.ditfs   = 0;
-    blackfin->sport.sport[0].tcr1.ltfs    = 1;
-    blackfin->sport.sport[0].tcr1.latfs   = 1;
-    blackfin->sport.sport[0].tcr1.tckfe   = 0;
+    blackfin->sport.sport[0].tcr1.tspen   = 0;  // not enabled yet...to be done below
+    blackfin->sport.sport[0].tcr1.itclk   = 1;  // internal tx clock ???
+    blackfin->sport.sport[0].tcr1.tdtype  = 0;  // type=normal (no companding)
+    blackfin->sport.sport[0].tcr1.tlsbit  = 0;  // MSB first bit order
+    blackfin->sport.sport[0].tcr1.itfs    = 1;  // internal tx frame sync
+    blackfin->sport.sport[0].tcr1.tfsr    = 1;  // TX Frame sync required = yes
+    blackfin->sport.sport[0].tcr1.ditfs   = 0;  // disable data independent of frame sync
+    blackfin->sport.sport[0].tcr1.ltfs    = 1;  // Active low transmit frame sync
+    blackfin->sport.sport[0].tcr1.latfs   = 0;  // Late frame sync disabled
+    blackfin->sport.sport[0].tcr1.tckfe   = 0;  // clk falling edge select = disabled
 
-    blackfin->sport.sport[0].tcr2.slen    = 31;
-    blackfin->sport.sport[0].tcr2.txse    = 0;
-    blackfin->sport.sport[0].tcr2.tsfse   = 1;
-    blackfin->sport.sport[0].tcr2.trfst   = 0;
+    blackfin->sport.sport[0].tcr2.slen    = 23; // serial length = 32 bits - 1  (2 channens 16 bit)
+    blackfin->sport.sport[0].tcr2.txse    = 0;  // tx secondary enable = false
+    blackfin->sport.sport[0].tcr2.tsfse   = 1;  // stereo frame sync enable
+    blackfin->sport.sport[0].tcr2.trfst   = 0;  // right stereo cchannel first
     
-    blackfin->sport.sport[0].tfsdiv = 511 ;
-    blackfin->sport.sport[0].tclkdiv = 0;
+    blackfin->sport.sport[0].tfsdiv = 511 ;     // fsdiv = 512 == 62khz @ 32 MHz mclk
+    blackfin->sport.sport[0].tclkdiv = 0;       //  tx clock = mclk
     
 
-    blackfin->sport.sport[0].tcr1.tspen   = 1;
-    blackfin->sport.sport[0].rcr1.rspen     = 1;
+    blackfin->sport.sport[0].tcr1.tspen   = 1;      // enable TX sport
+    blackfin->sport.sport[0].rcr1.rspen     = 1;    // enable RX sport
 
     blackfin->sport.sport[0].mcmc2.mcmen = 0;
     
@@ -111,6 +111,7 @@ int main( void )
 //static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -16384, -16384, 32767, 32767, 32767, 32767, 16384, 16384};
 static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, 
                                 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767 };
+//static const s16 tx_buffer[] = { 16384, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 static const s32 tx_size = sizeof(tx_buffer)/sizeof(tx_buffer[0]);
 static u32 tx_idx;
@@ -120,8 +121,10 @@ static u32 tx_idx;
 //
 void sport0_tx_handler() 
 {
-    s16 sample;
+    s32 sample;
     
+    // sync the system to check the latest "enable"/"disable" register status.
+    // do nothing if the SPORT is disabled
     SSYNC();    
     if(blackfin->sport.sport[0].tcr1.tspen == 0)
         return;
@@ -131,10 +134,14 @@ void sport0_tx_handler()
     // is TX holding register empty?6
     if(blackfin->sport.sport[0].stat.txhre == 1)
     {
-        sample = tx_buffer[tx_idx++];
+        // get the next sample, and imcrement the addres until at end
+        sample = tx_buffer[tx_idx++] << 8;
+        
+        // at end of buffer? put zeros forever
         if(tx_idx >= tx_size)
             tx_idx = 0;
             
+        // write the sample to the SPORT output
         blackfin->sport.sport[0].tx.word = sample;
     }
 }
