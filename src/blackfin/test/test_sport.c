@@ -58,8 +58,8 @@ int main( void )
     blackfin->sport.sport[0].rcr1.irfs      = 0;
     blackfin->sport.sport[0].rcr1.rfsr      = 1;
     blackfin->sport.sport[0].rcr1.lrfs      = 1;
-    blackfin->sport.sport[0].rcr1.larfs     = 1;
-    blackfin->sport.sport[0].rcr1.rckfe     = 0;
+    blackfin->sport.sport[0].rcr1.larfs     = 0;
+    blackfin->sport.sport[0].rcr1.rckfe     = 1;
 
     blackfin->sport.sport[0].rcr2.slen      = 23;
     blackfin->sport.sport[0].rcr2.rxse      = 0;
@@ -76,12 +76,12 @@ int main( void )
     blackfin->sport.sport[0].tcr1.tlsbit  = 0;  // MSB first bit order
     blackfin->sport.sport[0].tcr1.itfs    = 1;  // internal tx frame sync
     blackfin->sport.sport[0].tcr1.tfsr    = 1;  // TX Frame sync required = yes
-    blackfin->sport.sport[0].tcr1.ditfs   = 0;  // disable data independent of frame sync
+    blackfin->sport.sport[0].tcr1.ditfs   = 1;  // enable data independent of frame sync
     blackfin->sport.sport[0].tcr1.ltfs    = 1;  // Active low transmit frame sync
     blackfin->sport.sport[0].tcr1.latfs   = 0;  // Late frame sync disabled
-    blackfin->sport.sport[0].tcr1.tckfe   = 0;  // clk falling edge select = disabled
+    blackfin->sport.sport[0].tcr1.tckfe   = 1;  // clk falling edge select = disabled
 
-    blackfin->sport.sport[0].tcr2.slen    = 23; // serial length = 32 bits - 1  (2 channens 16 bit)
+    blackfin->sport.sport[0].tcr2.slen    = 23; // serial length = 24 bits - 1  (2 channens 24 bit)
     blackfin->sport.sport[0].tcr2.txse    = 0;  // tx secondary enable = false
     blackfin->sport.sport[0].tcr2.tsfse   = 1;  // stereo frame sync enable
     blackfin->sport.sport[0].tcr2.trfst   = 0;  // right stereo cchannel first
