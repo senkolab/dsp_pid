@@ -55,10 +55,7 @@ int main( void )
     //
     // enable SCLK output on CLKOUT pin
     //
-    blackfin->power.vr_ctl.extclk_sel = 1;
-    blackfin->power.vr_ctl.extclk_oe = 1;
-    blackfin->power.pll_ctl.
-    
+    init_power();    
     config_sport0();
     
     while(1)

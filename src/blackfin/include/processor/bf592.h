@@ -685,6 +685,25 @@ typedef struct _bf592_vr_ctl_t {
   u16   polarity      :     1;
 } bf592_vr_ctl_t;
 
+typedef struct _bf592_pll_ctl_t {
+  u16   df                  : 1;
+  u16   pll_off             : 1;
+  u16                       : 1;
+  u16   stopck              : 1;
+  u16                       : 1;
+  u16   pdwn                : 1;
+  u16                       : 2;
+  u16   bypass              : 1;
+  u16   msel                : 6;
+  u16                       : 1;
+} bf592_pll_ctl_t;
+
+typedef struct _bf592_pll_div_t {
+  u16   ssel                : 4;
+  u16   csel                : 2;
+  u16                       : 10;
+} bf592_pll_div_t;
+
 typedef struct _bf592_pll_stat_t {
   u16   active_pllenabled   : 1;
   u16   full_on             : 1;
@@ -698,16 +717,17 @@ typedef struct _bf592_pll_stat_t {
 
 typedef struct _bf592_power_t {
   u8                start[ PLL_CTL_ADDR - BLACKFIN_MMR_BASE ];
-  bf592_pll_stat_t  pll_ctl;
+  bf592_pll_ctl_t   pll_ctl;
   u8                pad00[2];
-  u16               pll_div;
+  bf592_pll_div_t   pll_div;
   u8                pad01[2];
   bf592_vr_ctl_t    vr_ctl;
   u8                pad02[2];
-  u16               pll_stat;
+  bf592_pll_stat_t  pll_stat;
   u8                pad03[2];
   u16               pll_lockcnt;
 } bf592_power_t;
+
 // 
 // PPI Registers
 // 

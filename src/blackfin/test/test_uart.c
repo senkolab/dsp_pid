@@ -19,7 +19,7 @@ const char __argv_string[] = "-abc -xyz";
 //
 // base MMR
 //
-bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
+volatile bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 
 int main( int argc, char *argv[] )
