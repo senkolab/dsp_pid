@@ -17,7 +17,7 @@
 #define CORE_FREQ   ( VCO_FREQ )
 
 // system (peripheral bus) frequency
-#define SYSCLK_FREQ ( VCO_FREQ / 4 )
+#define SYSCLK_FREQ ( VCO_FREQ / 6 )
 
 
 #endif /* _PID_BOARD_H_ */

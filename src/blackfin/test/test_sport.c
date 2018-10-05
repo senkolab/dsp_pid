@@ -19,7 +19,7 @@ extern void config_sport0(void);
 volatile bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 
-#define SPORT0_FS_DIV   511
+#define SPORT0_FS_DIV   31
 #define SPORT0_RCLK_DIV   3
 
 //static const s16 tx_buffer[] = {-32767, -32767, -23170, -23170, 0, 0, 23170, 23170, 32767, 32767, 23170, 23170, 0, 0, -23170, -23170};
@@ -156,7 +156,7 @@ void config_sport0(void)
     blackfin->sport.sport[0].rcr1.larfs     = 0;
     blackfin->sport.sport[0].rcr1.rckfe     = 1;
 
-    blackfin->sport.sport[0].rcr2.slen      = 31;
+    blackfin->sport.sport[0].rcr2.slen      = 23;
     blackfin->sport.sport[0].rcr2.rxse      = 0;
     blackfin->sport.sport[0].rcr2.rsfse     = 1;
     blackfin->sport.sport[0].rcr2.rrfst     = 0;
@@ -176,7 +176,7 @@ void config_sport0(void)
     blackfin->sport.sport[0].tcr1.latfs   = 0;  // Late frame sync disabled
     blackfin->sport.sport[0].tcr1.tckfe   = 1;  // clk falling edge select = disabled
 
-    blackfin->sport.sport[0].tcr2.slen    = 31; // serial length = 24 bits - 1  (2 channens 24 bit)
+    blackfin->sport.sport[0].tcr2.slen    = 23; // serial length = 24 bits - 1  (2 channens 24 bit)
     blackfin->sport.sport[0].tcr2.txse    = 0;  // tx secondary enable = false
     blackfin->sport.sport[0].tcr2.tsfse   = 1;  // stereo frame sync enable
     blackfin->sport.sport[0].tcr2.trfst   = 0;  // right stereo cchannel first
