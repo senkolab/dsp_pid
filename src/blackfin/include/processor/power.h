@@ -13,16 +13,6 @@
 #include <processor\power.h>
 #include <pid_board.h>
 
-// blackfin VCO synth frequency
-#define VCO_FREQ    ( (XTAL_FREQ) * 6 )
-
-// blackfin core frequency
-#define CORE_FREQ   ( VCO_FREQ )
-
-// system (peripheral bus) frequency
-#define SYSCLK_FREQ ( VCO_FREQ / 4 )
-
-
 //
 // init_power() - set up power registers
 //

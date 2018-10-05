@@ -16,6 +16,7 @@
 // prototypes
 //
 static void prog_pll_ctl(void);
+static void prog_mclk_pin(void);
 
 //
 // init_power() - set up power registers
@@ -23,6 +24,7 @@ static void prog_pll_ctl(void);
 void init_power()
 {
     prog_pll_ctl();
+    prog_mclk_pin();
 }
 
 
@@ -69,4 +71,13 @@ static void prog_pll_ctl(void)
     
     SSYNC();
       
+}
+
+//
+// Enable the MCLK pin
+//
+static void prog_mclk_pin(void)
+{
+    blackfin->power.vr_ctl.extclk_sel = 1;
+    blackfin->power.vr_ctl.extclk_oe = 1;
 }

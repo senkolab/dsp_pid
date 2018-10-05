@@ -9,7 +9,6 @@
 
 
 #include <processor/bf592.h>
-#include <processor/uart.h>
 #include <types.h>
 #include <processor/power.h>
 //#include "math.h"
@@ -20,21 +19,23 @@ extern void config_sport0(void);
 volatile bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 
-// timing config
-#define BFIN_XTAL   24000000
-#define BFIN_MCLK   
+#define SPORT0_FS_DIV   511
+#define SPORT0_RCLK_DIV   3
 
 //static const s16 tx_buffer[] = {-32767, -32767, -23170, -23170, 0, 0, 23170, 23170, 32767, 32767, 23170, 23170, 0, 0, -23170, -23170};
 //static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -16384, -16384, 32767, 32767, 32767, 32767, 16384, 16384};
-static s32 tx_buffer[] = {-32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, 
-                                32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767 };
+s32 tx_buffer[] = {-32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, 
+                          32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767,
+                          -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767, -32767,    
+                          32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767, 32767 
+                           };
 //static const s16 tx_buffer[] = { 16384, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 static const s32 tx_size = sizeof(tx_buffer)/sizeof(tx_buffer[0]);
 static u32 tx_idx;
 
 
-static s32 rx_buffer[32];
+s32 rx_buffer[sizeof(tx_buffer)/sizeof(tx_buffer[0])];
 static const s32 rx_size = sizeof(rx_buffer)/sizeof(rx_buffer[0]);
 static u32 rx_idx;
 
@@ -49,7 +50,7 @@ int main( void )
     for(n=0; n<tx_size; n++)
     {
         //tx_buffer[n] = (s32)((1<<31)*sin(6.28f / (float) tx_size * n));
-        tx_buffer[n] = n* (2<<29);
+        tx_buffer[n] = n* (2<<25);
     }
         
     //
@@ -112,7 +113,7 @@ void sport0_rx_handler()
         return;
 
     // is RX not empty? -- generates interrupt
-    if(blackfin->sport.sport[0].stat.rxne == 0)
+    if(blackfin->sport.sport[0].stat.rxne == 1)
         inbyte = blackfin->sport.sport[0].rx.word;   
         
     // add to rx buffer
@@ -129,7 +130,7 @@ void config_sport0(void)
 {
     
     //
-    // set port multiplexor to use UART
+    // set port multiplexor to use SPORT
     //
     blackfin->port.portg_mux = ~( nDR0PRI_PORTG_BIT | nRSCLK0_PORTG_BIT   \
                                     | nRFS0_PORTG_BIT |  nDT0PRI_PORTG_BIT   \
@@ -160,8 +161,8 @@ void config_sport0(void)
     blackfin->sport.sport[0].rcr2.rsfse     = 1;
     blackfin->sport.sport[0].rcr2.rrfst     = 0;
 
-    blackfin->sport.sport[0].rfsdiv = 511 ;
-    blackfin->sport.sport[0].rclkdiv = 0;
+    blackfin->sport.sport[0].rfsdiv = SPORT0_FS_DIV ;
+    blackfin->sport.sport[0].rclkdiv = SPORT0_RCLK_DIV;
 
 
     blackfin->sport.sport[0].tcr1.tspen   = 0;  // not enabled yet...to be done below
@@ -180,8 +181,8 @@ void config_sport0(void)
     blackfin->sport.sport[0].tcr2.tsfse   = 1;  // stereo frame sync enable
     blackfin->sport.sport[0].tcr2.trfst   = 0;  // right stereo cchannel first
     
-    blackfin->sport.sport[0].tfsdiv = 511 ;     // fsdiv = 512 == 62khz @ 32 MHz mclk
-    blackfin->sport.sport[0].tclkdiv = 0;       //  tx clock = mclk
+    blackfin->sport.sport[0].tfsdiv = SPORT0_FS_DIV ;     // fsdiv = 512 == 62khz @ 32 MHz mclk
+    blackfin->sport.sport[0].tclkdiv = SPORT0_RCLK_DIV;       //  tx clock = mclk
     
 
     blackfin->sport.sport[0].tcr1.tspen   = 1;      // enable TX sport
