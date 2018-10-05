@@ -3,8 +3,8 @@
 	<!-- Project build target -->
 	<target>
 		<processor revision="Automatic">ADSP-BF592-A</processor>
-		<extension>.dxe</extension>
-		<type>Executable file</type>
+		<extension>.ldr</extension>
+		<type>Loader file</type>
 	</target>
 	<!-- Configurations -->
 	<configurations active="Debug">
@@ -26,7 +26,7 @@
 					<option><![CDATA[]]></option>
 				</tool>
 				<tool type="Loader">
-					<option><![CDATA[|-Version>4.5|-b Flash>1|-f HEX>1|-Width 8>1|-p>0x0|DefaultStart>0|-v>0|-waits >-1|-BaudRate 500k>1|-HoldTime >-1|-pFlag >-1|-zinit>0|-No2Kernel>0|-o2>0|-kb Flash>1|-kf HEX>1|-kWidth 8>1|-kp>0x0|DefaultKernelStart>1|UserKernel>1|-romsplitter>0|split HEX>1|-maskaddr>0]]></option>
+					<option><![CDATA[|-Version>4.5|-b SPI>1|-f HEX>1|-Width 8>1|-p>0x0|DefaultStart>0|-v>1|-waits >-1|-BaudRate 500k>1|-HoldTime >-1|-pFlag >-1|-init>C:\Users\Rich\development\UWaterloo\dsp_pid.git\src\vdsp_proj\test_sport\Debug\test_sport.dxe|-o>C:\Users\Rich\development\UWaterloo\dsp_pid.git\src\blackfin\test\test_sport.ldr|-zinit>0|-No2Kernel>0|-o2>0|-kb Flash>1|-kf HEX>1|-kWidth 8>1|-kp>0x0|DefaultKernelStart>1|UserKernel>1|-romsplitter>0|split HEX>1|-maskaddr>0]]></option>
 				</tool>
 				<tool type="VdkGen">
 					<option><![CDATA[]]></option>

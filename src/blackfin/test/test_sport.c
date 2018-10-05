@@ -20,7 +20,7 @@ volatile bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 
 #define SPORT0_FS_DIV   31
-#define SPORT0_RCLK_DIV   3
+#define SPORT0_RCLK_DIV   2
 
 //static const s16 tx_buffer[] = {-32767, -32767, -23170, -23170, 0, 0, 23170, 23170, 32767, 32767, 23170, 23170, 0, 0, -23170, -23170};
 //static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -16384, -16384, 32767, 32767, 32767, 32767, 16384, 16384};
@@ -50,7 +50,7 @@ int main( void )
     for(n=0; n<tx_size; n++)
     {
         //tx_buffer[n] = (s32)((1<<31)*sin(6.28f / (float) tx_size * n));
-        tx_buffer[n] = n* (2<<25);
+        tx_buffer[n] = n* (2<<17);
     }
         
     //
