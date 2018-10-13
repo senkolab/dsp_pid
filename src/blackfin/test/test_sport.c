@@ -15,12 +15,15 @@
 
 extern void sport0_isr(void);
 extern void config_sport0(void);
+extern void sport_codec_reset(s32);
+
 
 volatile bf592_t* blackfin = (bf592_t*) BLACKFIN_MMR_BASE;
 
 
 #define SPORT0_FS_DIV   31
 #define SPORT0_RCLK_DIV   2
+#define CODEC_RESET_PF      2
 
 //static const s16 tx_buffer[] = {-32767, -32767, -23170, -23170, 0, 0, 23170, 23170, 32767, 32767, 23170, 23170, 0, 0, -23170, -23170};
 //static const s16 tx_buffer[] = {-32767, -32767, -32767, -32767, -16384, -16384, 32767, 32767, 32767, 32767, 16384, 16384};
@@ -87,7 +90,8 @@ void sport0_tx_handler()
     
     
     // is TX holding register empty?6
-    if(blackfin->sport.sport[0].stat.txhre == 1)
+//    if(blackfin->sport.sport[0].stat.txhre == 1)
+    if(blackfin->sport.sport[0].stat.txf != 1)
     {
         // get the next sample, and imcrement the addres until at end
         sample = tx_buffer[tx_idx++] ;
@@ -108,18 +112,23 @@ void sport0_rx_handler()
 {
     s32 inbyte;
     
+   
     SSYNC();    
     if(blackfin->sport.sport[0].rcr1.rspen == 0)
         return;
 
     // is RX not empty? -- generates interrupt
     if(blackfin->sport.sport[0].stat.rxne == 1)
+    {
         inbyte = blackfin->sport.sport[0].rx.word;   
         
-    // add to rx buffer
-    rx_buffer[rx_idx++] = inbyte;
-    if(rx_idx >= rx_size)
-        rx_idx = 0;
+        // add to rx buffer
+        rx_buffer[rx_idx++] = inbyte;
+        if(rx_idx >= rx_size)
+            rx_idx = 0;
+    }
+    
+    
 }
 
 //
@@ -128,10 +137,15 @@ void sport0_rx_handler()
 //
 void config_sport0(void)
 {
+    s32 n;
     
     //
     // set port multiplexor to use SPORT
     //
+    blackfin->port.portf_fer &= ~( 1 << CODEC_RESET_PF );     // set PF as GPIO
+    blackfin->port.portfio_dir |= ( 1 << CODEC_RESET_PF );    // set PF as output
+    blackfin->port.portgio &= ~(1 << CODEC_RESET_PF);
+    
     blackfin->port.portg_mux = ~( nDR0PRI_PORTG_BIT | nRSCLK0_PORTG_BIT   \
                                     | nRFS0_PORTG_BIT |  nDT0PRI_PORTG_BIT   \
                                     | nTSCLK0_PORTG_BIT | nTFS0_PORTG_BIT );
@@ -139,8 +153,6 @@ void config_sport0(void)
     blackfin->port.portg_fer =  nDR0PRI_PORTG_BIT | nRSCLK0_PORTG_BIT   \
                                 | nRFS0_PORTG_BIT | nDT0PRI_PORTG_BIT   \
                                 | nTSCLK0_PORTG_BIT | nTFS0_PORTG_BIT;
-
-                                
     
     
     //
@@ -185,10 +197,6 @@ void config_sport0(void)
     blackfin->sport.sport[0].tclkdiv = SPORT0_RCLK_DIV;       //  tx clock = mclk
     
 
-    blackfin->sport.sport[0].tcr1.tspen   = 1;      // enable TX sport
-    blackfin->sport.sport[0].rcr1.rspen     = 1;    // enable RX sport
-
-    blackfin->sport.sport[0].mcmc2.mcmen = 0;
     
     //
     // sport interrupt enable
@@ -197,5 +205,27 @@ void config_sport0(void)
     blackfin->sic.sic_imask0 |= SIC_ID_SPORT0_RX;
     blackfin->sic.sic_imask0 |= SIC_ID_SPORT0_TX;
     blackfin->core.evt.evt9 = sport0_isr;    // defined in ASM file
-    blackfin->core.evt.imask.ivg9 = 1;       
+    blackfin->core.evt.imask.ivg9 = 1;   
+    
+    blackfin->sport.sport[0].tcr1.tspen   = 1;      // enable TX sport
+    blackfin->sport.sport[0].rcr1.rspen     = 1;    // enable RX sport
+
+    blackfin->sport.sport[0].mcmc2.mcmen = 0;
+
+    // Reset CODEC now that clocks are stabilized                                    
+    for(n=0; n<1000000; n++)
+        asm("SSYNC; // sport delay loop");    
+    sport_codec_reset( false );    
+}
+
+
+//
+// Sets the CODEC reset pin
+//
+void sport_codec_reset(s32 value)
+{
+    if(0 == value)
+        blackfin->port.portfio |= ( 1 << CODEC_RESET_PF );      // active low
+    else
+        blackfin->port.portfio &= ~(1 << CODEC_RESET_PF);        // active low
 }
