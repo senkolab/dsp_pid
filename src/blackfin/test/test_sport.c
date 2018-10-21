@@ -53,7 +53,7 @@ int main( void )
     for(n=0; n<tx_size; n++)
     {
         //tx_buffer[n] = (s32)((1<<31)*sin(6.28f / (float) tx_size * n));
-        tx_buffer[n] = n* (2<<17);
+        tx_buffer[n] = n* (1<<18) - (1 << 23);
     }
         
     //
