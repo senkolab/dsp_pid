@@ -71,6 +71,16 @@ s32 main(s32 argc, s8** argv)
   result = vvprintf(putc, state, "%08x", 0x1234);
   result = vvprintf(putc, state, "% 8x", 0x1234);
 
+  result = vvprintf(putc, state, "%i", 0);
+  result = vvprintf(putc, state, "%3i", 0);
+  result = vvprintf(putc, state, "%i", 1234);
+  result = vvprintf(putc, state, "%i", -1234);
+  result = vvprintf(putc, state, "%+i", 1234);
+  result = vvprintf(putc, state, "%+13i", 1234);
+  result = vvprintf(putc, state, "%+13i", 1234);
+
+
+
   while(1)
     asm("emuexcpt;");
 }

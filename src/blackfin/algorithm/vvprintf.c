@@ -20,9 +20,14 @@ const s8 lower_hex_tab[] = "0123456789abcdef";
 const s8 upper_hex_tab[] = "0123456789ABCDEF";
 
 /*
+ * decimal table
+ */
+const s8 dec_tab[] = "0123456789";
+
+/*
  * power-of-tens table
  */
-const s32 ten_pwr_table[] = {
+const s32 dec_pwr_table[] = {
   1,
   10,
   100,
@@ -34,7 +39,7 @@ const s32 ten_pwr_table[] = {
   100000000,
   1000000000
 };
-
+#define LAST_DEC_PWR_IDX (sizeof(dec_pwr_table)/sizeof(dec_pwr_table[0]) - 1)
 
 
 /*
@@ -53,7 +58,7 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
   s8 pad_char;
   s32 leading_pad, trailing_pad;
   s32 has_dot;
- 
+  s32 has_plus; 
   s8* pvalue; 
   s32 value;
   va_list ap;
@@ -82,6 +87,7 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
         leading_pad = 0;
         trailing_pad = 0;
         has_dot = 0;
+        has_plus = 0;
 
         state = ESCAPE_1;
       }
@@ -108,6 +114,10 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
           has_dot = 1;
           state = ESCAPE_N;
           break;
+        case '+':
+          has_plus = 1;
+          state = ESCAPE_N;
+          break;
         case 'c': 
           value = va_arg(ap, s8);
           result += (*vputc)((s8) value, vp_state);
@@ -128,6 +138,10 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
           result += vvitoh(vputc, vp_state, value, leading_pad, pad_char, trailing_pad, upper_hex_tab);
           state = IDLE;
           break;
+        case 'i':
+          value = va_arg(ap, s32);
+          result += vvitoa(vputc, vp_state, value, has_plus, leading_pad, pad_char);
+          state = IDLE;
         case '1':
         case '2':
         case '3':
@@ -170,6 +184,10 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
           result += vvitoh(vputc, vp_state, value, leading_pad, pad_char, trailing_pad, upper_hex_tab);
           state = IDLE;
           break;
+        case 'i':
+          value = va_arg(ap, s32);
+          result += vvitoa(vputc, vp_state, value, has_plus, leading_pad, pad_char);
+          state = IDLE;
         case '0':
         case '1':
         case '2':
@@ -293,4 +311,93 @@ s32 vvputs( s32 (*vputc)(s8, void*), void* vp_state, s8* str, s32 leading_pad )
     // place character
     result += (*vputc)(c, vp_state);
   }
+}
+
+
+/*
+ * vvitoa() - integer to ascii
+ *
+ * vputc - putc() driver
+ * vp_state - putc() state variable
+ * value - value
+ * plus_sign - mandatory plus sign
+ * leading_pad - number of pad characters
+ * pad_char - pad characters
+ *
+ */
+s32 vvitoa(s32 (*vputc)(s8, void*), void* vp_state, s32 value, s32 plus_sign, s32 leading_pad, s8 pad_char)
+{
+  s32 radix = LAST_DEC_PWR_IDX;
+  s32 m;
+  s32 result = 0;
+  s32 n; 
+  s32 n_digits = 0;
+
+
+
+  // pos/neg logic
+  if( value < 0 )
+  {
+    result += (*vputc)('-', vp_state);
+    value = 0-value;
+    n_digits++;
+  }
+  else if( plus_sign )
+  {
+    result += (*vputc)('+', vp_state);
+    n_digits++;
+  }
+
+
+
+  // calculate number of digits
+  if( 0 == value )
+  {
+    n_digits = 1;
+  }
+  else
+  {
+    for(radix=LAST_DEC_PWR_IDX; radix >=0; radix--)
+    {
+      if( value >= dec_pwr_table[ radix ] )
+      {
+        n_digits += radix;
+        break;
+      }
+    }
+  }
+
+
+
+  // do pad character
+  for( ; leading_pad > n_digits; leading_pad-- )
+  {
+    result += (*vputc)(pad_char, vp_state);
+  }
+
+
+
+
+  // print each power-of-10 digit
+  if( 0 == value )
+  {
+    result += (*vputc)('0', vp_state);
+  }
+  else
+  {
+    for( ; radix >= 0; radix-- )
+    {
+      // find multiplicand at this radix
+      m = value / dec_pwr_table[ radix ];
+
+      // printt multiplicand as ascii digit
+      result += (*vputc)( dec_tab[m], vp_state );
+
+      // remainder is result of multiplication
+      value -= m * dec_pwr_table[ radix ];
+    }
+  }
+
+
+  return result;
 }
