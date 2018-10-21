@@ -9,6 +9,33 @@
 #include <algorithm/vvprintf.h>
 #include <stdarg.h>
 
+/*
+ * Lowercase hex table
+ */
+const s8 lower_hex_tab[] = "0123456789abcdef";
+
+/*
+ * uppercase hex table
+ */
+const s8 upper_hex_tab[] = "0123456789ABCDEF";
+
+/*
+ * power-of-tens table
+ */
+const s32 ten_pwr_table[] = {
+  1,
+  10,
+  100,
+  1000,
+  10000,
+  100000,
+  1000000,
+  10000000,
+  100000000,
+  1000000000
+};
+
+
 
 /*
  * vvprintf() - printf backend
@@ -18,25 +45,26 @@
  * fmt - null-termintated format specifier
  * ... - variable arg list
  */
-s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, u8* fmt, ...)
+s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
 {
-  u8 c;
+  s8 c;
   s32 result = 0;
-  enum state {IDLE, ESCAPE_1, ESCAPE_N};
+  enum {IDLE, ESCAPE_1, ESCAPE_N} state = IDLE;
   s8 pad_char;
   s32 leading_pad, trailing_pad;
   s32 has_dot;
-  
+ 
+  s8* pvalue; 
   s32 value;
   va_list ap;
   
 
   // start the variable argument list
-  va_start(ap, vputc);
+  va_start(ap, fmt);
   
 
 
-  while(true)
+  while(1)
   {
     // get next format character
     c = *fmt++;
@@ -59,7 +87,7 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, u8* fmt, ...)
       }
       else
       { 
-        result += *vputc(c, vp_state);
+        result += (*vputc)(c, vp_state);
       }
     }
 
@@ -77,12 +105,18 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, u8* fmt, ...)
           state = ESCAPE_N;
           break;
         case '.':
-          has_dot = true;
+          has_dot = 1;
           state = ESCAPE_N;
           break;
         case 'c': 
           value = va_arg(ap, s8);
-          result += *vputc((s8) value, vp_state);
+          result += (*vputc)((s8) value, vp_state);
+          state = IDLE;
+          break;
+        case 's':
+          pvalue = va_arg(ap, s8*);
+          result += vvputs(vputc, vp_state, pvalue, leading_pad);
+          state = IDLE;
           break;
         case 'x':
           value = va_arg(ap, s32);
@@ -94,44 +128,69 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, u8* fmt, ...)
           result += vvitoh(vputc, vp_state, value, leading_pad, pad_char, trailing_pad, upper_hex_tab);
           state = IDLE;
           break;
-        default:
-          if( ('0' <= c) && ('9' >= c) )
-            leading_pad = leading_pad*10 + (c - '0');
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          leading_pad = leading_pad*10 + (c - '0');
           state = ESCAPE_N;
           break;
+        default:
+          state = IDLE;
 
+      }
+    }
+    // first character of escape code
+    else if( ESCAPE_N == state )
+    {
+      switch(c)
+      {
+        case 'c': 
+          value = va_arg(ap, s8);
+          result += (*vputc)((s8) value, vp_state);
+          state = IDLE;
+          break;
+        case 's':
+          pvalue = va_arg(ap, s8*);
+          result += vvputs(vputc, vp_state, pvalue, leading_pad);
+          state = IDLE;
+          break;
+        case 'x':
+          value = va_arg(ap, s32);
+          result += vvitoh(vputc, vp_state, value, leading_pad, pad_char, trailing_pad, lower_hex_tab);
+          state = IDLE;
+          break;
+        case 'X':
+          value = va_arg(ap, s32);
+          result += vvitoh(vputc, vp_state, value, leading_pad, pad_char, trailing_pad, upper_hex_tab);
+          state = IDLE;
+          break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          leading_pad = leading_pad*10 + (c - '0');
+          state = ESCAPE_N;
+          break;
+        default:
+          state = IDLE;
+
+      }
     }
   }
-
   return result;
 }
-
-
-/*
- * Lowercase hex table
- */
-const s8 lower_hex_tab[] = "0123456789abcdef";
-
-/*
- * uppercase hex table
- */
-const s8 upper_hex_tab[] = "0123456789ABCDEF";
-
-/*
- * power-of-tens table
- */
-const s32 ten_pwr_table = {
-  1,
-  10,
-  100,
-  1000,
-  10000,
-  100000,
-  1000000,
-  10000000,
-  100000000,
-  1000000000
-};
 
 /*
  * vvitoh() virtual ascii to hex converter
@@ -172,20 +231,20 @@ s32 vvitoh( s32 (*vputc)(s8, void*), void* vp_state, u32 value, s32 leading_pad,
   // do leading pad
   for(n=leading_pad; n > n_digits; n--)
   {
-    result += *vputc( leading_char, vp_state );
+    result += (*vputc)( leading_char, vp_state );
   }
   
   // do digits
-  for(n=n_digits; n > 0; n--)
+  for(n=n_digits-1; n >= 0; n--)
   {
-    c = table[ (value >> n) & 0xf ];  // get digits
-    result += *vputc( c, vp_state );  // call putc()
+    c = table[ (value >> (n*4)) & 0xf ];  // get digits
+    result += (*vputc)( c, vp_state );  // call putc()
   }
 
   // do trailing pad
   for(; result < trailing_pad; )
   {
-    result += *vputc(' ', state);
+    result += (*vputc)(' ', vp_state);
   }
 
   return result;
@@ -200,7 +259,7 @@ s32 vvitoh( s32 (*vputc)(s8, void*), void* vp_state, u32 value, s32 leading_pad,
  * vp_state - state variable for putc()
  * str - string to put
  */
-s32 vvputs( s32 (*vputs)(s8, void*), void* vp_state, s8* str, s32 leading_pad )
+s32 vvputs( s32 (*vputc)(s8, void*), void* vp_state, s8* str, s32 leading_pad )
 {
   s8 c;
   s32 result = 0;
@@ -210,25 +269,28 @@ s32 vvputs( s32 (*vputs)(s8, void*), void* vp_state, s8* str, s32 leading_pad )
   // pad leading
   if(leading_pad != 0)
   {
-    for(p = str, len=leading_pad; '\0' != *p, p++)
+    // find string length
+    for(p=str, len=leading_pad; '\0' != *p; p++)
       len--;
 
-    for(; leading_pad > 0; leading_pad--)
-      result += *vputc(' ', vp_state);
+    // apply padding character (space)
+    for(; len > 0; len--)
+      result += (*vputc)(' ', vp_state);
   }
 
 
   // copy string
   p = str;
-  while(true)
+  while(1)
   {
+    // get new character
     c = *p++;
-
+    
+    // null termination ends function
     if('\0' == c)
       return result;
 
-    result += *vputc(c, vp_state);
+    // place character
+    result += (*vputc)(c, vp_state);
   }
-
-  return result;
 }
