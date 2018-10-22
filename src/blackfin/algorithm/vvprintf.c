@@ -61,6 +61,8 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
   s32 has_plus; 
   s8* pvalue; 
   s32 value;
+  double dvalue;
+
   va_list ap;
   
 
@@ -142,6 +144,12 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
           value = va_arg(ap, s32);
           result += vvitoa(vputc, vp_state, value, has_plus, leading_pad, pad_char);
           state = IDLE;
+          break;
+        case 'e':
+          dvalue = va_arg(ap, double);
+          result += vvdtoa_e(vputc, vp_state, dvalue);
+          state = IDLE;
+          break;
         case '1':
         case '2':
         case '3':
@@ -188,7 +196,13 @@ s32 vvprintf( s32 (*vputc)(s8 c, void* state), void* vp_state, s8* fmt, ...)
           value = va_arg(ap, s32);
           result += vvitoa(vputc, vp_state, value, has_plus, leading_pad, pad_char);
           state = IDLE;
-        case '0':
+          break;
+        case 'e':
+          dvalue = va_arg(ap, double);
+          result += vvdtoa_e(vputc, vp_state, dvalue);
+          state = IDLE;
+          break;
+         case '0':
         case '1':
         case '2':
         case '3':
@@ -353,7 +367,7 @@ s32 vvitoa(s32 (*vputc)(s8, void*), void* vp_state, s32 value, s32 plus_sign, s3
   // calculate number of digits
   if( 0 == value )
   {
-    n_digits = 1;
+    n_digits++;
   }
   else
   {
@@ -397,6 +411,68 @@ s32 vvitoa(s32 (*vputc)(s8, void*), void* vp_state, s32 value, s32 plus_sign, s3
       value -= m * dec_pwr_table[ radix ];
     }
   }
+
+
+  return result;
+}
+
+
+
+
+/*
+ * vvdtoa_e() - double-precision to ascii in "e" format
+ *
+ */
+s32 vvdtoa_e( s32 (*vputc)(s8, void*), void* vp_state, double value )
+{
+  union {
+    double d;
+    u32 u;
+    struct {
+      u32 mant: 23;
+      s32 exp:  8;
+      u32 sign: 1;
+    } ieee;
+  } dvalue;
+
+  s32 result = 0;
+  s8 exp;
+  s32 mant;
+  s32 n;
+  s32 ipart;
+  s32 fpart;
+  s8  c;
+
+
+
+  // decode ieee764 value
+  dvalue.d = value;
+  exp = dvalue.ieee.exp - 127;            // normalize the signed mantissa
+  if( 0 == dvalue.ieee.exp )
+    mant = dvalue.ieee.mant;              // denormalized numbers have
+  else 
+    mant = (1 << 24) + dvalue.ieee.mant;  // add implicit "1" from IEEE standard
+
+
+  // do sign
+  if(dvalue.ieee.sign)
+    result += (*vputc)('-', vp_state);
+
+
+
+  // do integer portion
+  ipart = (mant << exp ) >> 24;
+  c = dec_tab[ ipart ];
+  result += (*vputc)( c, vp_state );
+  result += (*vputc)( '.', vp_state );
+  
+
+  // do fractional part
+  fpart = mant - ((c - '0') << 24);
+  for(n=exp-24; n>0; n++)
+  {
+  }
+  
 
 
   return result;
